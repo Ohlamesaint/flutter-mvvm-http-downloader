@@ -47,7 +47,7 @@ class _ImageLightBoxState extends State<ImageLightBox> {
               return Container(
                 width: double.infinity,
                 color: Colors.black,
-                child: Center(
+                child: const Center(
                   child: CircularProgressIndicator(
                     color: Colors.white,
                   ),
@@ -55,6 +55,7 @@ class _ImageLightBoxState extends State<ImageLightBox> {
               );
             },
             imageProvider: widget.imageFiles[index],
+            filterQuality: FilterQuality.high,
           ),
         ),
       ),

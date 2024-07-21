@@ -58,9 +58,14 @@ class _HistoryState extends State<History>
               child: CircularProgressIndicator(),
             )
           : GridView.builder(
-              cacheExtent: 999,
+              // cacheExtent: 999,
+              addAutomaticKeepAlives: true,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3, childAspectRatio: 1.0),
+                crossAxisCount: 3,
+                childAspectRatio: 1.0,
+                mainAxisSpacing: 0.5,
+                crossAxisSpacing: 0.5,
+              ),
               itemCount: imageFiles.length,
               itemBuilder: (context, index) {
                 String imageType = imageFiles[index].file.path.split('.').last;
@@ -75,6 +80,9 @@ class _HistoryState extends State<History>
                         ),
                       ),
                     );
+                  },
+                  onTapDown: (details) {
+                    print('tap down');
                   },
                   onLongPress: () {
                     showDialog(
@@ -141,25 +149,34 @@ class _HistoryState extends State<History>
                               ),
                             ));
                   },
-                  child: Container(
-                    child: Image(
-                      image: imageFiles[index],
-                      fit: BoxFit.fill,
-                      alignment: Alignment.center,
-                      frameBuilder:
-                          (context, child, frame, wasSynchronouslyLoaded) {
-                        if (wasSynchronouslyLoaded) return child;
+                  child: Image(
+                    filterQuality: FilterQuality.none,
+                    image: imageFiles[index],
+                    width: double.infinity,
+                    height: double.infinity,
+                    // alignment: Alignment.center,
+                    frameBuilder:
+                        (context, child, frame, wasSynchronouslyLoaded) {
+                      if (wasSynchronouslyLoaded) {
+                        return child;
+                      } else {
                         return AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 100),
+                          duration: const Duration(milliseconds: 200),
                           switchOutCurve: Curves.easeInOut,
                           child: frame != null
                               ? child
-                              : const CircularProgressIndicator(
-                                  color: Colors.black54,
+                              : const SizedBox(
+                                  height: 60,
+                                  width: 60,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 6,
+                                    color: Colors.black54,
+                                  ),
                                 ),
                         );
-                      },
-                    ),
+                      }
+                    },
+                    fit: BoxFit.fill,
                   ),
                 );
               },

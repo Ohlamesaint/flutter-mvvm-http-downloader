@@ -87,6 +87,7 @@ class DownloadRepositoryImpl implements DownloadRepository {
         locator<DownloadViewModel>().errorDownload(targetEntity);
         subscription.cancel();
         fileStream.close();
+        file.delete();
       });
 
       targetEntity.sub = subscription;

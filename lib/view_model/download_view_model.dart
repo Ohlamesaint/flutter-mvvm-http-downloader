@@ -29,9 +29,9 @@ class DownloadViewModel extends ChangeNotifier {
   }
 
   Future<void> fetchImage() async {
+    await locator<DownloadRepositoryImpl>().fetchImageWithUrl(urlString: url);
     url = '';
     notifyListeners();
-    await locator<DownloadRepositoryImpl>().fetchImageWithUrl(urlString: url);
   }
 
   DownloadEntity initDownloadEntity(
@@ -44,7 +44,7 @@ class DownloadViewModel extends ChangeNotifier {
       targetLength: length,
       temporaryAbsolute: temporaryAbsolute,
     );
-    downloads.add(newDownload);
+    downloads.insert(0, newDownload);
     notifyListeners();
     return newDownload;
   }

@@ -15,7 +15,7 @@ class BottomNavigationButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.only(bottom: 8.0, top: 4.0),
         width: double.infinity,
-        color: Colors.black87,
+        color: Colors.black,
         child: const Center(
             child: Text(
           'Go to History',

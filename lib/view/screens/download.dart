@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:perfect_corp_homework/injection_container.dart';
-import 'package:perfect_corp_homework/model/repository/download_repository_impl.dart';
 import 'package:perfect_corp_homework/view/components/bottom_navigation_button.dart';
 import 'package:perfect_corp_homework/view/components/download_card.dart';
 import 'package:perfect_corp_homework/view_model/download_view_model.dart';
-import 'package:perfect_corp_homework/view/screens/history.dart';
-import 'package:perfect_corp_homework/view_model/history_view_model.dart';
 import 'package:provider/provider.dart';
+
+import '../components/download_list.dart';
 
 class Download extends StatelessWidget {
   static const String id = '/';
@@ -68,75 +67,35 @@ class Download extends StatelessWidget {
                     const SizedBox(
                       height: 10.0,
                     ),
-                    TextButton(
-                      onPressed: Provider.of<DownloadViewModel>(context,
-                                  listen: false)
-                              .url
-                              .isEmpty
-                          ? Provider.of<DownloadViewModel>(context,
-                                  listen: false)
-                              .showNeedInput
-                          : () {
-                              _controller.clear();
-
-                              // trigger view model to fetchImage
-                              Provider.of<DownloadViewModel>(context,
-                                      listen: false)
-                                  .fetchImage();
-
-                              // Scroll to the bottom
-                              Future.delayed(const Duration(microseconds: 300))
-                                  .then((_) {
-                                if (_scrollController.hasClients) {
-                                  _scrollController.animateTo(
-                                    _scrollController.position.maxScrollExtent *
-                                        1.1,
-                                    duration: const Duration(milliseconds: 800),
-                                    curve: Curves.fastOutSlowIn,
-                                  );
-                                }
-                              });
-                            },
+                    ElevatedButton.icon(
+                      onPressed:
+                          Provider.of<DownloadViewModel>(context).url.isEmpty
+                              ? Provider.of<DownloadViewModel>(context)
+                                  .showNeedInput
+                              : () {
+                                  _controller.clear();
+                                  // trigger view model to fetchImage
+                                  Provider.of<DownloadViewModel>(context,
+                                          listen: false)
+                                      .fetchImage();
+                                },
                       style: const ButtonStyle(
+                        elevation: WidgetStatePropertyAll(3.0),
                         backgroundColor:
                             WidgetStatePropertyAll<Color>(Colors.black54),
+                        iconColor: WidgetStatePropertyAll<Color>(Colors.white),
                       ),
-                      child: const Text(
+                      icon: const Icon(Icons.download),
+                      label: const Text(
                         'Download',
                         style: TextStyle(color: Colors.white),
                       ),
                     ),
                     const SizedBox(
-                      height: 20.0,
+                      height: 10.0,
                     ),
                     Expanded(
-                      child: Provider.of<DownloadViewModel>(context)
-                              .downloads
-                              .isEmpty
-                          ? const Center(child: Text('No Download'))
-                          : SizedBox(
-                              height: 100.0,
-                              child: ListView.separated(
-                                controller: _scrollController,
-                                padding: const EdgeInsets.all(16.0),
-                                itemCount:
-                                    Provider.of<DownloadViewModel>(context)
-                                        .downloads
-                                        .length,
-                                separatorBuilder: (context, index) {
-                                  return const SizedBox(
-                                    height: 10.0,
-                                  );
-                                },
-                                itemBuilder: (context, index) {
-                                  return DownloadCard(
-                                      downloadEntity:
-                                          Provider.of<DownloadViewModel>(
-                                                  context)
-                                              .downloads[index]);
-                                },
-                              ),
-                            ),
+                      child: DownloadList(scrollController: _scrollController),
                     ),
                   ],
                 ),
