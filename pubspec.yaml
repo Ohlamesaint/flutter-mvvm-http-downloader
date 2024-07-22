@@ -42,6 +42,9 @@ dependencies:
   photo_view: ^0.15.0
   permission_handler: ^11.3.1
   get_it: ^7.7.0
+  flutter_image_compress: ^2.3.0
+  firebase_core: ^2.24.2
+  cloud_firestore: ^4.14.0
 
 dev_dependencies:
   flutter_test:

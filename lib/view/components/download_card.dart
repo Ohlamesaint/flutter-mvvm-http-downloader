@@ -58,7 +58,7 @@ class DownloadCard extends StatelessWidget {
                     child: Center(
                         child: switch (downloadEntity.response.apiStatus) {
                       // change to provider of _downloadStatus
-                      Status.paused => const Icon(
+                      Status.paused || Status.manualPaused => const Icon(
                           Icons.pause_circle_outline,
                           color: Colors.amber,
                         ),
@@ -107,7 +107,7 @@ class DownloadCard extends StatelessWidget {
                               ? null
                               : () => Provider.of<DownloadViewModel>(context,
                                       listen: false)
-                                  .pauseDownload(downloadEntity),
+                                  .manualPauseDownload(downloadEntity),
                       child: const Text(
                         'Pause',
                       ),
@@ -116,7 +116,9 @@ class DownloadCard extends StatelessWidget {
                   Expanded(
                     child: TextButton(
                       onPressed:
-                          downloadEntity.response.apiStatus != Status.paused
+                          downloadEntity.response.apiStatus != Status.paused &&
+                                  downloadEntity.response.apiStatus !=
+                                      Status.manualPaused
                               ? null
                               : () => Provider.of<DownloadViewModel>(context,
                                       listen: false)
@@ -129,7 +131,9 @@ class DownloadCard extends StatelessWidget {
                       onPressed:
                           downloadEntity.response.apiStatus != Status.paused &&
                                   downloadEntity.response.apiStatus !=
-                                      Status.loading
+                                      Status.loading &&
+                                  downloadEntity.response.apiStatus !=
+                                      Status.manualPaused
                               ? null
                               : () => Provider.of<DownloadViewModel>(context,
                                       listen: false)

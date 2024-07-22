@@ -1,22 +1,23 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:perfect_corp_homework/view_model/history_view_model.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:provider/provider.dart';
+
+import '../../injection_container.dart';
 
 class ImageLightBox extends StatefulWidget {
-  const ImageLightBox(
-      {super.key, required this.initIndex, required this.imageFiles});
+  const ImageLightBox({super.key, required this.initIndex});
 
   final int initIndex;
-  final List<FileImage> imageFiles;
   @override
   State<ImageLightBox> createState() => _ImageLightBoxState();
 }
 
 class _ImageLightBoxState extends State<ImageLightBox> {
   late PageController pageController;
-  late double startPos;
-  late DateTime startTime;
 
   @override
   void initState() {
@@ -28,34 +29,38 @@ class _ImageLightBoxState extends State<ImageLightBox> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
+    return ChangeNotifierProvider.value(
+      value: locator<HistoryViewModel>(),
+      builder: (context, child) => Scaffold(
         backgroundColor: Colors.black,
-        title: const Text(
-          'HTTP downloader',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        appBar: AppBar(
+          backgroundColor: Colors.black,
+          title: const Text(
+            'HTTP downloader',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
         ),
-      ),
-      body: Transform.translate(
-        offset: const Offset(0, -25),
-        child: PageView.builder(
-          controller: pageController,
-          itemCount: widget.imageFiles.length,
-          itemBuilder: (context, index) => PhotoView(
-            loadingBuilder: (context, imageChunkEvent) {
-              return Container(
-                width: double.infinity,
-                color: Colors.black,
-                child: const Center(
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
+        body: Transform.translate(
+          offset: const Offset(0, -25),
+          child: PageView.builder(
+            controller: pageController,
+            itemCount: Provider.of<HistoryViewModel>(context).images.length,
+            itemBuilder: (context, index) => PhotoView(
+              loadingBuilder: (context, imageChunkEvent) {
+                return Container(
+                  width: double.infinity,
+                  color: Colors.black,
+                  child: const Center(
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                    ),
                   ),
-                ),
-              );
-            },
-            imageProvider: widget.imageFiles[index],
-            filterQuality: FilterQuality.high,
+                );
+              },
+              imageProvider:
+                  Provider.of<HistoryViewModel>(context).images[index],
+              filterQuality: FilterQuality.high,
+            ),
           ),
         ),
       ),

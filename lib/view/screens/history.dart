@@ -3,8 +3,12 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:perfect_corp_homework/view/components/image_detail_card.dart';
+import 'package:perfect_corp_homework/view_model/history_view_model.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 
+import '../../injection_container.dart';
 import 'image_lightbox.dart';
 
 class History extends StatefulWidget {
@@ -18,169 +22,106 @@ class History extends StatefulWidget {
 
 class _HistoryState extends State<History>
     with AutomaticKeepAliveClientMixin<History> {
-  late List<FileImage> imageFiles;
-  bool isLoading = true;
-
-  Future<void> getImageFiles() async {
-    var status = await Permission.storage.status;
-    if (!status.isGranted) {
-      await Permission.storage.request();
-    }
-    Directory dir = await getApplicationDocumentsDirectory();
-    var fileList = await dir.list().toList();
-    imageFiles = fileList.whereType<File>().map((file) {
-      return FileImage(file);
-    }).toList();
-    setState(() {
-      isLoading = false;
-    });
-  }
-
   @override
   void initState() {
-    getImageFiles();
+    locator<HistoryViewModel>().fetchThumbnails();
+    locator<HistoryViewModel>().fetchImages();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text(
-          'HTTP downloader',
-          style: TextStyle(fontWeight: FontWeight.bold),
+    return ChangeNotifierProvider.value(
+      value: locator<HistoryViewModel>(),
+      builder: (context, child) => Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          title: const Text(
+            'HTTP downloader',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
         ),
-      ),
-      body: isLoading
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
-          : GridView.builder(
-              // cacheExtent: 999,
-              addAutomaticKeepAlives: true,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                childAspectRatio: 1.0,
-                mainAxisSpacing: 0.5,
-                crossAxisSpacing: 0.5,
-              ),
-              itemCount: imageFiles.length,
-              itemBuilder: (context, index) {
-                String imageType = imageFiles[index].file.path.split('.').last;
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ImageLightBox(
-                          initIndex: index,
-                          imageFiles: imageFiles,
+        body: Provider.of<HistoryViewModel>(context).isLoading
+            ? const Center(
+                child: CircularProgressIndicator(),
+              )
+            : GridView.builder(
+                addAutomaticKeepAlives: true,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  childAspectRatio: 1.0,
+                  mainAxisSpacing: 0.5,
+                  crossAxisSpacing: 0.5,
+                ),
+                itemCount:
+                    Provider.of<HistoryViewModel>(context).thumbnails.length,
+                itemBuilder: (context, index) {
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ImageLightBox(
+                            initIndex: index,
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                  onTapDown: (details) {
-                    print('tap down');
-                  },
-                  onLongPress: () {
-                    showDialog(
-                        context: context,
-                        builder: (context) => Container(
-                              alignment: Alignment.center,
-                              height: double.infinity,
-                              width: double.infinity,
-                              padding: const EdgeInsets.all(32.0),
-                              child: Container(
-                                decoration: const BoxDecoration(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(15.0)),
-                                  color: Colors.white,
-                                ),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Image(
-                                      image: imageFiles[index],
-                                      fit: BoxFit.contain,
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 16.0, horizontal: 8.0),
-                                      child: Row(
-                                        // padding: const EdgeInsets.all(8.0),
-                                        children: [
-                                          const Expanded(
-                                            flex: 1,
-                                            child: Icon(
-                                              Icons.file_copy,
-                                              color: Colors.black54,
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            width: 15.0,
-                                          ),
-                                          Expanded(
-                                            flex: 9,
-                                            child: Text(
-                                              imageFiles[index]
-                                                  .file
-                                                  .path
-                                                  .split('/')
-                                                  .last,
-                                              style: const TextStyle(
-                                                  color: Colors.black54),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text(
-                                        imageFiles[index].file.uri.toString(),
-                                        style: TextStyle(color: Colors.black54),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ));
-                  },
-                  child: Image(
-                    filterQuality: FilterQuality.none,
-                    image: imageFiles[index],
-                    width: double.infinity,
-                    height: double.infinity,
-                    // alignment: Alignment.center,
-                    frameBuilder:
-                        (context, child, frame, wasSynchronouslyLoaded) {
-                      if (wasSynchronouslyLoaded) {
-                        return child;
-                      } else {
-                        return AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 200),
-                          switchOutCurve: Curves.easeInOut,
-                          child: frame != null
-                              ? child
-                              : const SizedBox(
-                                  height: 60,
-                                  width: 60,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 6,
-                                    color: Colors.black54,
-                                  ),
-                                ),
-                        );
-                      }
+                      );
                     },
-                    fit: BoxFit.fill,
-                  ),
-                );
-              },
-            ),
+                    onLongPress: () {
+                      showDialog(
+                          context: context,
+                          builder: (context) => Hero(
+                                tag: 'preview',
+                                child: ChangeNotifierProvider.value(
+                                  value: locator<HistoryViewModel>(),
+                                  builder: (context, child) => ImageDetailCard(
+                                      index: index,
+                                      filename:
+                                          Provider.of<HistoryViewModel>(context)
+                                              .thumbnails[index]
+                                              .file
+                                              .path
+                                              .split('/')
+                                              .last
+                                              .split('.')[0]),
+                                ),
+                              ));
+                    },
+                    child: Image(
+                      filterQuality: FilterQuality.none,
+                      image: Provider.of<HistoryViewModel>(context)
+                          .thumbnails[index],
+                      width: double.infinity,
+                      height: double.infinity,
+                      // alignment: Alignment.center,
+                      frameBuilder:
+                          (context, child, frame, wasSynchronouslyLoaded) {
+                        if (wasSynchronouslyLoaded) {
+                          return child;
+                        } else {
+                          return AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 200),
+                            switchOutCurve: Curves.easeInOut,
+                            child: frame != null
+                                ? child
+                                : const SizedBox(
+                                    height: 60,
+                                    width: 60,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 6,
+                                      color: Colors.black54,
+                                    ),
+                                  ),
+                          );
+                        }
+                      },
+                      fit: BoxFit.fill,
+                    ),
+                  );
+                },
+              ),
+      ),
     );
   }
 

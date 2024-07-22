@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:perfect_corp_homework/view_model/download_view_model.dart';
 
@@ -42,16 +44,17 @@ class DownloadRepositoryImpl implements DownloadRepository {
           !kSupportMediaTypes.contains(contentType[1])) {
         throw UnSupportImageTypeError('invalid type');
       }
-
+      String filename = _generateFileName();
       // generate temporary file name
       String temporaryAbsolute =
-          '${(await getTemporaryDirectory()).path}/${_generateFileName()}.${contentType[1]}';
+          '${(await getTemporaryDirectory()).path}/$filename.${contentType[1]}';
 
       // initialize download entity with callback from download view model
       targetEntity = locator<DownloadViewModel>().initDownloadEntity(
         urlString: urlString,
         length: response.contentLength ?? 0,
         temporaryAbsolute: temporaryAbsolute,
+        filename: filename,
       );
 
       // open temporary file
@@ -78,8 +81,12 @@ class DownloadRepositoryImpl implements DownloadRepository {
 
         // move temp file to document directory
         String documentAbsolute =
-            '${(await getApplicationDocumentsDirectory()).path}/${_generateFileName()}.${contentType[1]}';
-        await moveFile(file, documentAbsolute);
+            '${(await getApplicationDocumentsDirectory()).path}/$filename.${contentType[1]}';
+        String documentThumbnailAbsolute =
+            '${(await getApplicationDocumentsDirectory()).path}/thumbnails/$filename.${contentType[1]}';
+        file = await moveFile(file, documentAbsolute);
+        // compress the image as thumbnail
+        await compressFile(file, documentThumbnailAbsolute);
       });
 
       // download error occur
@@ -93,10 +100,11 @@ class DownloadRepositoryImpl implements DownloadRepository {
       targetEntity.sub = subscription;
     } on BadRequestError catch (e) {
       locator<DownloadViewModel>().showError(e.toString());
-      // alert dialog to notify user the url is invalid
+      // TODO: alert dialog to notify user the url is invalid
     } on UnSupportImageTypeError catch (e) {
       locator<DownloadViewModel>().showError(e.toString());
-      // alert dialog to notify user the target type is invalid
+      rethrow;
+      // TODO: alert dialog to notify user the target type is invalid
     } on ArgumentError catch (e) {
       locator<DownloadViewModel>().showError(e.toString());
     }
@@ -113,8 +121,19 @@ class DownloadRepositoryImpl implements DownloadRepository {
   }
 
   String _generateFileName() {
-    return sha256
-        .convert(utf8.encode(DateTime.timestamp().toString()))
+    return (0x7FFFFFFFFFFFFFFF - DateTime.timestamp().microsecondsSinceEpoch)
         .toString();
+  }
+
+  Future<void> compressFile(File file, String outputPath) async {
+    var result = await FlutterImageCompress.compressAndGetFile(
+      file.absolute.path,
+      outputPath,
+      quality: 20,
+      minHeight: 500,
+      minWidth: 500,
+    );
+
+    log('file ${outputPath} compressed successfully');
   }
 }
