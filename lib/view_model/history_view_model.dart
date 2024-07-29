@@ -24,13 +24,18 @@ class HistoryViewModel extends ChangeNotifier {
     images = imageFileList.whereType<File>().map((file) {
       return FileImage(file);
     }).toList();
+    images.sort((a, b) =>
+        -a.file.statSync().changed.compareTo(b.file.statSync().changed));
     isFetchingData = false;
     notifyListeners();
   }
 
   Future<void> fetchThumbnails() async {
     isLoading = true;
+    notifyListeners();
     thumbnails = await locator<ImageRepositoryImpl>().fetchThumbnails();
+    thumbnails.sort((a, b) =>
+        -a.file.statSync().changed.compareTo(b.file.statSync().changed));
     isLoading = false;
     notifyListeners();
   }

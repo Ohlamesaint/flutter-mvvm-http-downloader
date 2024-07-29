@@ -4,17 +4,17 @@ import 'package:provider/provider.dart';
 import '../../injection_container.dart';
 import '../../view_model/history_view_model.dart';
 
-class ImageDetailCard extends StatefulWidget {
-  const ImageDetailCard(
+class ImageDetailCardView extends StatefulWidget {
+  const ImageDetailCardView(
       {super.key, required this.index, required this.filename});
   final int index;
   final String filename;
 
   @override
-  State<ImageDetailCard> createState() => _ImageDetailCardState();
+  State<ImageDetailCardView> createState() => _ImageDetailCardViewState();
 }
 
-class _ImageDetailCardState extends State<ImageDetailCard> {
+class _ImageDetailCardViewState extends State<ImageDetailCardView> {
   @override
   void initState() {
     super.initState();

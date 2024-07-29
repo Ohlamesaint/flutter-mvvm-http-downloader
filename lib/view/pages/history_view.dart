@@ -1,27 +1,22 @@
-import 'dart:developer';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:perfect_corp_homework/view/components/image_detail_card.dart';
+import 'package:perfect_corp_homework/view/components/image_detail_card_view.dart';
 import 'package:perfect_corp_homework/view_model/history_view_model.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 import '../../injection_container.dart';
-import 'image_lightbox.dart';
+import 'image_lightbox_view.dart';
 
-class History extends StatefulWidget {
-  const History({super.key});
+class HistoryView extends StatefulWidget {
+  const HistoryView({super.key});
 
   static const String id = '/history';
 
   @override
-  State<History> createState() => _HistoryState();
+  State<HistoryView> createState() => _HistoryViewState();
 }
 
-class _HistoryState extends State<History>
-    with AutomaticKeepAliveClientMixin<History> {
+class _HistoryViewState extends State<HistoryView>
+    with AutomaticKeepAliveClientMixin<HistoryView> {
   @override
   void initState() {
     locator<HistoryViewModel>().fetchThumbnails();
@@ -62,7 +57,7 @@ class _HistoryState extends State<History>
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ImageLightBox(
+                          builder: (context) => ImageLightBoxView(
                             initIndex: index,
                           ),
                         ),
@@ -70,23 +65,21 @@ class _HistoryState extends State<History>
                     },
                     onLongPress: () {
                       showDialog(
-                          context: context,
-                          builder: (context) => Hero(
-                                tag: 'preview',
-                                child: ChangeNotifierProvider.value(
-                                  value: locator<HistoryViewModel>(),
-                                  builder: (context, child) => ImageDetailCard(
-                                      index: index,
-                                      filename:
-                                          Provider.of<HistoryViewModel>(context)
-                                              .thumbnails[index]
-                                              .file
-                                              .path
-                                              .split('/')
-                                              .last
-                                              .split('.')[0]),
-                                ),
-                              ));
+                        context: context,
+                        builder: (context) => ChangeNotifierProvider.value(
+                          value: locator<HistoryViewModel>(),
+                          builder: (context, child) => ImageDetailCardView(
+                            index: index,
+                            filename: Provider.of<HistoryViewModel>(context)
+                                .thumbnails[index]
+                                .file
+                                .path
+                                .split('/')
+                                .last
+                                .split('.')[0],
+                          ),
+                        ),
+                      );
                     },
                     child: Image(
                       filterQuality: FilterQuality.none,

@@ -4,9 +4,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:perfect_corp_homework/injection_container.dart';
-import 'package:perfect_corp_homework/view/screens/download.dart';
-import 'package:perfect_corp_homework/view/screens/history.dart';
-import 'package:perfect_corp_homework/view_model/download_view_model.dart';
+import 'package:perfect_corp_homework/features/download/view/page/download_view.dart';
+import 'package:perfect_corp_homework/view/pages/history_view.dart';
+import 'package:perfect_corp_homework/features/download/view_model/download_view_model.dart';
 
 void _createThumbnailDir() async {
   Directory thumbnailDir = Directory(
@@ -48,6 +48,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
 
+    /// control download when screen on/off
     if (state == AppLifecycleState.hidden ||
         state == AppLifecycleState.paused) {
       locator<DownloadViewModel>().pauseAllDownload();
@@ -67,10 +68,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         ),
       ),
       color: Colors.white,
-      initialRoute: Download.id,
+      initialRoute: DownloadView.id,
       routes: {
-        Download.id: (context) => Download(),
-        History.id: (context) => const History(),
+        DownloadView.id: (context) => DownloadView(),
+        HistoryView.id: (context) => const HistoryView(),
       },
       debugShowCheckedModeBanner: false,
     );

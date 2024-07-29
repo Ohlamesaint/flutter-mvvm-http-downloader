@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:perfect_corp_homework/view/screens/history.dart';
+import 'package:perfect_corp_homework/view/pages/history_view.dart';
 
-class BottomNavigationButton extends StatelessWidget {
-  const BottomNavigationButton({
+class BottomNavigationButtonView extends StatelessWidget {
+  const BottomNavigationButtonView({
     super.key,
   });
 
@@ -10,7 +10,7 @@ class BottomNavigationButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.pushNamed(context, History.id);
+        Navigator.pushNamed(context, HistoryView.id);
       },
       child: Container(
         padding: const EdgeInsets.only(bottom: 8.0, top: 4.0),

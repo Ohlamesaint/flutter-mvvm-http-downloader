@@ -1,6 +1,3 @@
-import 'dart:developer';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:perfect_corp_homework/view_model/history_view_model.dart';
 import 'package:photo_view/photo_view.dart';
@@ -8,15 +5,15 @@ import 'package:provider/provider.dart';
 
 import '../../injection_container.dart';
 
-class ImageLightBox extends StatefulWidget {
-  const ImageLightBox({super.key, required this.initIndex});
+class ImageLightBoxView extends StatefulWidget {
+  const ImageLightBoxView({super.key, required this.initIndex});
 
   final int initIndex;
   @override
-  State<ImageLightBox> createState() => _ImageLightBoxState();
+  State<ImageLightBoxView> createState() => _ImageLightBoxViewState();
 }
 
-class _ImageLightBoxState extends State<ImageLightBox> {
+class _ImageLightBoxViewState extends State<ImageLightBoxView> {
   late PageController pageController;
 
   @override

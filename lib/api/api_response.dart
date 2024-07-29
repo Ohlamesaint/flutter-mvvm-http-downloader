@@ -2,6 +2,7 @@
 class ApiResponse<T> {
   Status apiStatus;
   String? message;
+  T? data;
 
   ApiResponse.pending(this.message) : apiStatus = Status.pending;
   ApiResponse.loading(this.message) : apiStatus = Status.loading;
