@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:perfect_corp_homework/api/app_exception.dart';
 import 'package:perfect_corp_homework/features/download/model/download_file_model.dart';
 import 'package:perfect_corp_homework/features/download/model/download_model.dart';
 import 'package:perfect_corp_homework/util/network_util.dart';
@@ -36,6 +37,8 @@ class DownloadRepositoryImpl implements DownloadRepository {
       );
 
       serviceResult.data = targetModel;
+    } on http.ClientException catch (e) {
+      return ServiceResult.error(NoInternetError(e.message));
     } catch (e) {
       return ServiceResult.error(e);
     }

@@ -2,32 +2,38 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:perfect_corp_homework/api/app_exception.dart';
-import 'package:perfect_corp_homework/features/download/repository/file_repository_impl.dart';
-import 'package:perfect_corp_homework/model/repository/image_repository_impl.dart';
+import 'package:perfect_corp_homework/constant.dart';
+import 'package:perfect_corp_homework/features/image_presentation/repository/image_repository.dart';
 
 import '../../../api/service_result.dart';
-import '../../../util/file_util.dart';
-import '../repository/download_repository_impl.dart';
+import '../repository/download_repository.dart';
 import '../../../injection_container.dart';
-import '../../../model/ImageModel.dart';
 import '../model/download_model.dart';
 
 class DownloadViewModel extends ChangeNotifier {
   String url = '';
   bool needInput = false;
+  bool showErrorDialog = false;
+  String dialogErrorMessage = '';
   late List<DownloadModel> downloads = [];
 
   final animatedListGlobalKey = GlobalKey<AnimatedListState>();
 
+  void closeErrorDialog() {
+    showErrorDialog = false;
+    notifyListeners();
+  }
+
+  /// onChange() for url input text field
   void urlInputChanged(String value) {
     url = value;
     if (value != '') needInput = false;
     notifyListeners();
   }
 
+  /// show error message for empty url input
   void showNeedInput() {
     needInput = true;
     notifyListeners();
@@ -47,20 +53,28 @@ class DownloadViewModel extends ChangeNotifier {
         .forEach(resumeDownload);
   }
 
-  /// trigger when user press download button
+  /// triggered when user press download button
   Future<void> downloadImage() async {
     ServiceResult<DownloadModel> response =
-        await locator<DownloadRepositoryImpl>()
-            .fetchImageWithUrl(urlString: url);
+        await locator<DownloadRepository>().fetchImageWithUrl(urlString: url);
 
     if (response.error != null) {
+      // set error dialog content
       switch (response.error.runtimeType) {
-        case BadRequestError _:
-        // TODO Handle BadRequestError;
-        case UnSupportImageTypeError _:
-        // TODO Handle UnSupportImageTypeError;
-        case _:
+        case BadRequestError:
+          dialogErrorMessage = kBadRequestErrorMessage;
+        case UnSupportImageTypeError:
+          dialogErrorMessage = kUnSupportMediaTypeErrorMessage;
+        case NoInternetError:
+          dialogErrorMessage = kNoInternetErrorMessage;
+        default:
+          dialogErrorMessage = 'The format of the input url is wrong!';
       }
+
+      // set error dialog show
+      showErrorDialog = true;
+      url = '';
+      notifyListeners();
       return;
     }
 
@@ -86,7 +100,7 @@ class DownloadViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // init and configure subscription
+  /// init and configure subscription
   void initDownloadSubscription(
       DownloadModel downloadModel, IOSink ioSink, File file) {
     downloadModel.status = ServiceStatus.loading;
@@ -103,7 +117,8 @@ class DownloadViewModel extends ChangeNotifier {
       downloadModel.subscription.cancel();
       ioSink.close();
 
-      locator<FileRepositoryImpl>().persistFile(downloadModel.fileModel);
+      // store image to the persist directory and the metadata to the firebase
+      await locator<ImageRepository>().saveImage(downloadModel);
     });
 
     // download error occur
@@ -131,38 +146,32 @@ class DownloadViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void manualPauseDownload(DownloadModel downloadEntity) {
-    downloadEntity.status = ServiceStatus.manualPaused;
-    downloadEntity.subscription.pause();
+  void manualPauseDownload(DownloadModel downloadModel) {
+    downloadModel.status = ServiceStatus.manualPaused;
+    downloadModel.subscription.pause();
     notifyListeners();
   }
 
-  void pauseDownload(DownloadModel downloadEntity) {
-    downloadEntity.status = ServiceStatus.paused;
-    downloadEntity.subscription.pause();
+  void pauseDownload(DownloadModel downloadModel) {
+    downloadModel.status = ServiceStatus.paused;
+    downloadModel.subscription.pause();
     notifyListeners();
   }
 
   void finishDownload(DownloadModel downloadModel) async {
     downloadModel.status = ServiceStatus.done;
     notifyListeners();
-
-    // TODO: add metadata to fire store
-    await locator<ImageRepositoryImpl>().addImageMetaData(ImageModel(
-      url: downloadModel.urlString,
-      filename: downloadModel.fileModel.filename,
-    ));
   }
 
-  void errorDownload(DownloadModel downloadEntity, Object error) {
-    downloadEntity.status = ServiceStatus.error;
+  void errorDownload(DownloadModel downloadModel, Object error) {
+    downloadModel.status = ServiceStatus.error;
     log(error.toString());
     notifyListeners();
   }
 
-  void cancelDownload(DownloadModel downloadEntity) {
-    downloadEntity.status = ServiceStatus.cancel;
-    downloadEntity.subscription.cancel();
+  void cancelDownload(DownloadModel downloadModel) {
+    downloadModel.status = ServiceStatus.cancel;
+    downloadModel.subscription.cancel();
     notifyListeners();
   }
 }

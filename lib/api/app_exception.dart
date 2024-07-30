@@ -19,6 +19,6 @@ class BadRequestError extends AppException {
   BadRequestError([String? message]) : super("Bad Request: ", message);
 }
 
-class TransitionError extends AppException {
-  TransitionError([String? message]) : super("Transition Failed: ", message);
+class NoInternetError extends AppException {
+  NoInternetError([String? message]) : super("No Internet: ", message);
 }

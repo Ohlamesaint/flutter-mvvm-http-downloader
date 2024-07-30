@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:http/http.dart' as http;
 
 import '../api/app_exception.dart';

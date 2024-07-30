@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 const kSupportMediaTypes = {
   'apng',
@@ -19,3 +19,27 @@ const kDownloadCardTheme = BoxDecoration(
     Radius.circular(15.0),
   ),
 );
+
+const kGridAxisCount = SliverGridDelegateWithFixedCrossAxisCount(
+  crossAxisCount: 3,
+  childAspectRatio: 1.0,
+  mainAxisSpacing: 0.5,
+  crossAxisSpacing: 0.5,
+);
+
+const kDownloadButtonStyle = ButtonStyle(
+  elevation: WidgetStatePropertyAll(3.0),
+  backgroundColor: WidgetStatePropertyAll<Color>(Colors.black54),
+  iconColor: WidgetStatePropertyAll<Color>(Colors.white),
+);
+
+const kUnSupportMediaTypeErrorMessage =
+    '''The requested media type is not supported
+Please download the media included below:
+apng, avif, gif, jpeg, png, webp''';
+
+const kBadRequestErrorMessage = '''Please check the format of the input URL.
+It seems to be incorrect.''';
+
+const kNoInternetErrorMessage = '''Please connect to the internet.
+''';

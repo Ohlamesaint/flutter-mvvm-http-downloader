@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:perfect_corp_homework/view_model/history_view_model.dart';
+import 'package:perfect_corp_homework/features/image_presentation/view_model/history_view_model.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:provider/provider.dart';
 
-import '../../injection_container.dart';
+import '../../../../injection_container.dart';
 
 class ImageLightBoxView extends StatefulWidget {
   const ImageLightBoxView({super.key, required this.initIndex});
@@ -41,7 +41,8 @@ class _ImageLightBoxViewState extends State<ImageLightBoxView> {
           offset: const Offset(0, -25),
           child: PageView.builder(
             controller: pageController,
-            itemCount: Provider.of<HistoryViewModel>(context).images.length,
+            itemCount:
+                Provider.of<HistoryViewModel>(context).imageModels.length,
             itemBuilder: (context, index) => PhotoView(
               loadingBuilder: (context, imageChunkEvent) {
                 return Container(
@@ -54,8 +55,9 @@ class _ImageLightBoxViewState extends State<ImageLightBoxView> {
                   ),
                 );
               },
-              imageProvider:
-                  Provider.of<HistoryViewModel>(context).images[index],
+              imageProvider: FileImage(Provider.of<HistoryViewModel>(context)
+                  .imageModels[index]
+                  .originImage),
               filterQuality: FilterQuality.high,
             ),
           ),

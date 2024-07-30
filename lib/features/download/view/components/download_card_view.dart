@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:perfect_corp_homework/features/download/view_model/download_view_model.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../api/api_response.dart';
 import '../../../../api/service_result.dart';
 import '../../../../constant.dart';
 import '../../model/download_model.dart';

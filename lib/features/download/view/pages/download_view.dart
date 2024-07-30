@@ -100,7 +100,13 @@ class DownloadView extends StatelessWidget {
               _controller.clear();
               // trigger view model to fetchImage
               Provider.of<DownloadViewModel>(context, listen: false)
-                  .downloadImage();
+                  .downloadImage()
+                  .then((res) {
+                if (Provider.of<DownloadViewModel>(context, listen: false)
+                    .showErrorDialog) {
+                  showErrorDialog(context);
+                }
+              });
             },
       style: const ButtonStyle(
         elevation: WidgetStatePropertyAll(3.0),
@@ -111,6 +117,30 @@ class DownloadView extends StatelessWidget {
       label: const Text(
         'Download',
         style: TextStyle(color: Colors.white),
+      ),
+    );
+  }
+
+  void showErrorDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Error'),
+        content: Text(
+          Provider.of<DownloadViewModel>(context, listen: false)
+              .dialogErrorMessage,
+          style: const TextStyle(color: Colors.white),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Provider.of<DownloadViewModel>(context, listen: false)
+                  .closeErrorDialog();
+              Navigator.of(context).pop();
+            },
+            child: const Text("Ok, got it!"),
+          )
+        ],
       ),
     );
   }

@@ -4,9 +4,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:perfect_corp_homework/injection_container.dart';
-import 'package:perfect_corp_homework/features/download/view/page/download_view.dart';
-import 'package:perfect_corp_homework/view/pages/history_view.dart';
+import 'package:perfect_corp_homework/features/download/view/pages/download_view.dart';
+import 'package:perfect_corp_homework/features/image_presentation/view/pages/history_view.dart';
 import 'package:perfect_corp_homework/features/download/view_model/download_view_model.dart';
+import 'package:provider/provider.dart';
 
 void _createThumbnailDir() async {
   Directory thumbnailDir = Directory(
@@ -59,21 +60,24 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData.dark().copyWith(
-        appBarTheme: const AppBarTheme(
-          color: Colors.black,
-          titleTextStyle: TextStyle(color: Colors.white, fontSize: 20.0),
+    return ChangeNotifierProvider.value(
+      value: locator<DownloadViewModel>(),
+      builder: (context, child) => MaterialApp(
+        title: 'HTTP downloader',
+        theme: ThemeData.dark().copyWith(
+          appBarTheme: const AppBarTheme(
+            color: Colors.black,
+            titleTextStyle: TextStyle(color: Colors.white, fontSize: 20.0),
+          ),
         ),
+        color: Colors.white,
+        initialRoute: DownloadView.id,
+        routes: {
+          DownloadView.id: (context) => DownloadView(),
+          HistoryView.id: (context) => const HistoryView(),
+        },
+        debugShowCheckedModeBanner: false,
       ),
-      color: Colors.white,
-      initialRoute: DownloadView.id,
-      routes: {
-        DownloadView.id: (context) => DownloadView(),
-        HistoryView.id: (context) => const HistoryView(),
-      },
-      debugShowCheckedModeBanner: false,
     );
   }
 }

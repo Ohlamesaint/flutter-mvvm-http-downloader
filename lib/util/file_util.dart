@@ -4,7 +4,6 @@ import 'dart:math';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:path_provider/path_provider.dart';
 
 class FileUtil {
   /// private constructor for util class
@@ -29,6 +28,13 @@ class FileUtil {
       minHeight: 500,
       minWidth: 500,
     );
+  }
+
+  static List<File> getAllFilesInDirectory(String path) {
+    Directory dir = Directory(path);
+    List<File> files = [];
+    dir.listSync().whereType<File>().forEach(files.add);
+    return files;
   }
 
   static String generateFileName() {

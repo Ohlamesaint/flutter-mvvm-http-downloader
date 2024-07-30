@@ -1,5 +1,3 @@
-import 'package:perfect_corp_homework/api/app_exception.dart';
-
 class ServiceResult<T> {
   ServiceStatus serviceStatus;
   Object? error;
@@ -12,6 +10,10 @@ class ServiceResult<T> {
   ServiceResult.error(this.error) : serviceStatus = ServiceStatus.error;
   ServiceResult.done() : serviceStatus = ServiceStatus.done;
   ServiceResult.cancel() : serviceStatus = ServiceStatus.cancel;
+
+  String getErrorMessage() {
+    return error.toString();
+  }
 }
 
 enum ServiceStatus {
