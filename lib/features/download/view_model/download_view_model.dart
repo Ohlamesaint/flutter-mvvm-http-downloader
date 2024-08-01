@@ -119,6 +119,8 @@ class DownloadViewModel extends ChangeNotifier {
 
       // store image to the persist directory and the metadata to the firebase
       await locator<ImageRepository>().saveImage(downloadModel);
+
+      // TODO use snack bar to notify download finish
     });
 
     // download error occur
@@ -129,6 +131,8 @@ class DownloadViewModel extends ChangeNotifier {
       downloadModel.subscription.cancel();
       ioSink.close();
       file.delete();
+
+      // TODO use snack bar to notify download error
     });
 
     notifyListeners();
