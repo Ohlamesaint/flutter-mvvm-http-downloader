@@ -8,7 +8,7 @@ void main() {
 
   /// given when then
   test('GIVEN download repository implementation class WHEN the THEN', () {
-    final DownloadRepositoryImpl downloadRepositoryImpl =
-        DownloadRepositoryImpl();
+    final StreamBasedDownloadRepositoryImpl downloadRepositoryImpl =
+        StreamBasedDownloadRepositoryImpl();
   });
 }
