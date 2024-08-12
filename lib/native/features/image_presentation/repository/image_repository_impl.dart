@@ -18,28 +18,28 @@ class ImageRepositoryImpl implements ImageRepository {
   CollectionReference imageDatabase = _firestore.collection('images');
 
   @override
-  Future<ServiceResult<void>> saveImage(
-      FileEntity fileEntity, DownloadEntity downloadEntity) async {
+  Future<ServiceResult<void>> saveImage(DownloadEntity downloadEntity) async {
     try {
-      String documentAbsolute = fileEntity.imagePath;
-      String documentThumbnailAbsolute = fileEntity.thumbnailPath;
-      File tempFile = File(fileEntity.temporaryImagePath);
+      String documentAbsolute = downloadEntity.fileEntity.imagePath;
+      String documentThumbnailAbsolute =
+          downloadEntity.fileEntity.thumbnailPath;
+      File tempFile = File(downloadEntity.fileEntity.temporaryImagePath);
       var persistFile = await FileUtil.moveFile(tempFile, documentAbsolute);
       // compress the image as thumbnail
       await FileUtil.compressFile(persistFile, documentThumbnailAbsolute);
 
       await imageDatabase.add({
         'url': downloadEntity.url,
-        'filename': fileEntity.filename,
+        'filename': downloadEntity.fileEntity.filename,
         'createTime': DateTime.now(),
       });
 
-      log('file ${fileEntity.filename} been added to firebase');
+      log('file ${downloadEntity.fileEntity.filename} been added to firebase');
     } catch (e) {
       return ServiceResult.error(e);
     }
 
-    return ServiceResult.success();
+    return ServiceResult.success(null);
   }
 
   @override
@@ -88,8 +88,7 @@ class ImageRepositoryImpl implements ImageRepository {
       mergeSort(imageModelLists, compare: (ImageModel m1, ImageModel m2) {
         return -m1.createTime.compareTo(m2.createTime);
       });
-      serviceResult = ServiceResult.success();
-      serviceResult.data = imageModelLists;
+      serviceResult = ServiceResult.success(imageModelLists);
     } catch (e) {
       return ServiceResult.error(e);
     }

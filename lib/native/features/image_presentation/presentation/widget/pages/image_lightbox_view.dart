@@ -3,7 +3,7 @@ import 'package:perfect_corp_homework/native/features/image_presentation/view_mo
 import 'package:photo_view/photo_view.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../injection_container.dart';
+import '../../../../../injection_container.dart';
 
 class ImageLightBoxView extends StatefulWidget {
   const ImageLightBoxView({super.key, required this.initIndex});

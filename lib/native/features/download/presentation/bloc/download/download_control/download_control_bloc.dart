@@ -23,8 +23,9 @@ class DownloadControlBloc
     ServiceResult<int> serviceResult =
         await downloadRepository.createDownload(urlString: event.url);
     if (!serviceResult.isSuccess) {
-      String message = _handleOnCreateDownloadError(serviceResult.error!);
+      String message = _handleDownloadError(serviceResult.error!);
       emit(ErrorOccur(message));
+      return;
     }
     return serviceResult.data! != 0 ? emit(HasDownload()) : emit(NoDownload());
   }
@@ -33,8 +34,9 @@ class DownloadControlBloc
     ServiceResult<int> serviceResult =
         await downloadRepository.pauseDownload(downloadID: event.downloadID);
     if (!serviceResult.isSuccess) {
-      String message = _handleOnCreateDownloadError(serviceResult.error!);
+      String message = _handleDownloadError(serviceResult.error!);
       emit(ErrorOccur(message));
+      return;
     }
     return serviceResult.data! != 0 ? emit(HasDownload()) : emit(NoDownload());
   }
@@ -43,8 +45,9 @@ class DownloadControlBloc
     ServiceResult<int> serviceResult =
         await downloadRepository.resumeDownload(downloadID: event.downloadID);
     if (!serviceResult.isSuccess) {
-      String message = _handleOnCreateDownloadError(serviceResult.error!);
+      String message = _handleDownloadError(serviceResult.error!);
       emit(ErrorOccur(message));
+      return;
     }
     return serviceResult.data! != 0 ? emit(HasDownload()) : emit(NoDownload());
   }
@@ -53,13 +56,14 @@ class DownloadControlBloc
     ServiceResult<int> serviceResult =
         await downloadRepository.cancelDownload(downloadID: event.downloadID);
     if (!serviceResult.isSuccess) {
-      String message = _handleOnCreateDownloadError(serviceResult.error!);
+      String message = _handleDownloadError(serviceResult.error!);
       emit(ErrorOccur(message));
+      return;
     }
     return serviceResult.data! != 0 ? emit(HasDownload()) : emit(NoDownload());
   }
 
-  String _handleOnCreateDownloadError(Object error) {
+  String _handleDownloadError(Object error) {
     switch (error) {
       case BadRequestError:
         return kBadRequestErrorMessage;
@@ -68,7 +72,7 @@ class DownloadControlBloc
       case NoInternetError:
         return kNoInternetErrorMessage;
       case _:
-        return 'Unknown Error Occur';
+        return error.toString();
     }
   }
 }

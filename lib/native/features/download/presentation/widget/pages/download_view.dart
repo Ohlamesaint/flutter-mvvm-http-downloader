@@ -17,6 +17,7 @@ class DownloadView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    BlocProvider.of<DownloadDataBloc>(context).add(GetDownloadDataSource());
     return BlocListener<DownloadControlBloc, DownloadControlState>(
       listener: (context, state) {
         // control the DownloadDataBloc status

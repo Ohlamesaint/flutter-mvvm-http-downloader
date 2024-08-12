@@ -4,18 +4,15 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:perfect_corp_homework/native/features/download/data/repository/download_repository_native_impl.dart';
+import 'package:perfect_corp_homework/native/features/download/domain/repository/download_repository.dart';
 import 'package:perfect_corp_homework/native/features/download/presentation/bloc/bloc_observer.dart';
 import 'package:perfect_corp_homework/native/features/download/presentation/bloc/download/download_data/download_data_bloc.dart';
-import 'package:perfect_corp_homework/native/features/download/presentation/view_model/download_view_model.dart';
 import 'package:perfect_corp_homework/native/injection_container.dart';
 import 'package:perfect_corp_homework/native/features/download/presentation/bloc/download/download_control/download_control_bloc.dart';
 import 'package:perfect_corp_homework/native/features/download/presentation/bloc/error_dialog/error_dialog_bloc.dart';
 import 'package:perfect_corp_homework/native/features/download/presentation/bloc/url_input/url_input_bloc.dart';
 import 'package:perfect_corp_homework/native/features/download/presentation/widget/pages/download_view.dart';
-import 'package:perfect_corp_homework/native/features/image_presentation/view/pages/history_view.dart';
-// import 'package:perfect_corp_homework/native/features/download/view_model/download_view_model.dart';
-import 'package:provider/provider.dart';
+import 'package:perfect_corp_homework/native/features/image_presentation/presentation/widget/pages/history_view.dart';
 
 void _createThumbnailDir() async {
   Directory thumbnailDir = Directory(
@@ -70,17 +67,16 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return RepositoryProvider(
-      create: (context) => DownloadRepositoryNativeImpl(),
+      create: (context) => locator<DownloadRepository>(),
       child: MultiBlocProvider(
         providers: [
           BlocProvider(
             create: (context) => DownloadDataBloc(
-                RepositoryProvider.of<DownloadRepositoryNativeImpl>(context)),
+                RepositoryProvider.of<DownloadRepository>(context)),
           ),
           BlocProvider(
               create: (context) => DownloadControlBloc(
-                  RepositoryProvider.of<DownloadRepositoryNativeImpl>(
-                      context))),
+                  RepositoryProvider.of<DownloadRepository>(context))),
           BlocProvider(create: (context) => ErrorDialogBloc()),
           BlocProvider(create: (context) => UrlInputBloc())
         ],

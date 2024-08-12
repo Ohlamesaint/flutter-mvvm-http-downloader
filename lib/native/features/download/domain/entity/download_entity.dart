@@ -1,36 +1,28 @@
 import 'package:equatable/equatable.dart';
-import 'package:perfect_corp_homework/native/features/download/domain/repository/output/download_created_response.dart';
 
-import '../repository/output/download_progress_response.dart';
+import 'file_entity.dart';
 
 class DownloadEntity with EquatableMixin {
   String downloadID;
   String url;
   int totalLength;
-  int currentLength = 0;
-  DownloadStatus status = DownloadStatus.pending;
+  int currentLength;
+  DownloadStatus status;
+
+  FileEntity fileEntity;
 
   DownloadEntity({
     required this.downloadID,
     required this.url,
     required this.totalLength,
+    required this.currentLength,
+    required this.status,
+    required this.fileEntity,
   });
 
   @override
-  List<Object?> get props => [downloadID];
-
-  void updateProgress(DownloadProgressResponse downloadProgressResponse) {
-    currentLength += downloadProgressResponse.length;
-  }
-
-  factory DownloadEntity.fromEntity(
-      DownloadCreatedResponse downloadCreatedResponse) {
-    return DownloadEntity(
-      downloadID: downloadCreatedResponse.downloadID,
-      url: downloadCreatedResponse.url,
-      totalLength: downloadCreatedResponse.totalLength,
-    );
-  }
+  List<Object?> get props =>
+      [downloadID, url, totalLength, currentLength, status];
 }
 
 enum DownloadStatus {
@@ -40,5 +32,8 @@ enum DownloadStatus {
   manualPaused,
   canceled,
   failed,
-  done
+  done;
+
+  String toJson() => name;
+  factory DownloadStatus.fromJson(String json) => values.byName(json);
 }

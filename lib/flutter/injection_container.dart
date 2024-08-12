@@ -1,11 +1,11 @@
 import 'package:get_it/get_it.dart';
-import 'package:perfect_corp_homework/native/features/download/presentation/view_model/download_view_model.dart';
-import 'package:perfect_corp_homework/native/features/image_presentation/view_model/history_view_model.dart';
 
 import '../flutter/features/download/repository/download_repository.dart';
 import '../flutter/features/download/repository/download_repository_impl.dart';
 import '../flutter/features/image_presentation/repository/image_repository.dart';
 import '../flutter/features/image_presentation/repository/image_repository_impl.dart';
+import 'features/download/view_model/download_view_model.dart';
+import 'features/image_presentation/view_model/history_view_model.dart';
 
 final locator = GetIt.instance;
 

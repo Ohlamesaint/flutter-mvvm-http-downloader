@@ -3,12 +3,14 @@ class ServiceResult<T> {
   Object? error;
   T? data;
 
-  ServiceResult.success() : isSuccess = true;
+  ServiceResult.success(this.data) : isSuccess = true;
   ServiceResult.error(this.error) : isSuccess = false;
 
   String getErrorMessage() {
     return error.toString();
   }
+
+  ServiceResult(this.isSuccess, this.error, this.data);
 }
 
 // enum ServiceStatus {

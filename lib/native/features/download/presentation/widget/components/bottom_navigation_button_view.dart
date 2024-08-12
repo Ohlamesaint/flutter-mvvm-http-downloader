@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:perfect_corp_homework/native/features/image_presentation/view/pages/history_view.dart';
+import 'package:perfect_corp_homework/native/features/image_presentation/presentation/widget/pages/history_view.dart';
 
 class BottomNavigationButtonView extends StatelessWidget {
   const BottomNavigationButtonView({

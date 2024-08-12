@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../view_model/history_view_model.dart';
+import '../../../view_model/history_view_model.dart';
 
 class ImageCellView extends StatelessWidget {
   const ImageCellView({

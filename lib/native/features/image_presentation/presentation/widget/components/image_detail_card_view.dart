@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../model/image_model.dart';
+import '../../../model/image_model.dart';
 
 class ImageDetailCardView extends StatelessWidget {
   const ImageDetailCardView({super.key, required this.imageModel});

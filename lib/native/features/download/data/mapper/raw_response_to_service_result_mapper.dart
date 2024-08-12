@@ -1,10 +1,5 @@
-import 'package:perfect_corp_homework/native/features/download/data/model/download_progress_response_model.dart';
-import 'package:perfect_corp_homework/native/features/download/domain/repository/output/download_created_response.dart';
-
 import '../../../../api/app_exception.dart';
 import '../../../../api/service_result.dart';
-import '../model/download_created_response_model.dart';
-import '../repository/download_repository_native_impl.dart';
 
 class RawResponseToServiceResultMapper<T> {
   ServiceResult<T> mapping(Map<String, dynamic> rawResponse,
@@ -39,9 +34,16 @@ class MethodChannelResponseToServiceResultMapper<T> {
       case 10002:
         return ServiceResult.error(
             NoInternetError(methodChannelResponse.errorMessage));
+      case 10003:
+        return ServiceResult.error(
+            UnknownError(methodChannelResponse.errorMessage));
+      case 10004:
+        return ServiceResult.error(
+            JsonSerializationError(methodChannelResponse.errorMessage));
       default:
         // error free case
-        ServiceResult<T> result = ServiceResult.success();
+        ServiceResult<T> result =
+            ServiceResult.success(methodChannelResponse.data);
         if (factoryFunction == null) {
           result.data = methodChannelResponse.data;
         } else {
@@ -60,7 +62,15 @@ class MethodChannelResponse<T> {
   MethodChannelResponse(
       {required this.statusCode, this.errorMessage, this.data});
 
-  factory MethodChannelResponse.fromJson(Map<String, dynamic> data) {
-    return MethodChannelResponse(statusCode: data['statusCode']);
-  }
+  factory MethodChannelResponse.fromJson(Map<String, dynamic> json) =>
+      MethodChannelResponse(
+          statusCode: json['statusCode'],
+          errorMessage: json['errorMessage'],
+          data: json['data']);
+
+  Map<String, dynamic> toJson() => {
+        'statusCode': statusCode,
+        'errorMessage': errorMessage,
+        'data': data,
+      };
 }

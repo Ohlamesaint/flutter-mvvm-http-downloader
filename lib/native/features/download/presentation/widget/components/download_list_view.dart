@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:provider/provider.dart';
 
-import '../../../../../features/download/domain/entity/download_entity.dart';
-import '../../bloc/download/download_control/download_control_bloc.dart';
 import '../../bloc/download/download_data/download_data_bloc.dart';
-import '../../view_model/download_view_model.dart';
 import 'download_card_view.dart';
 
 class DownloadListView extends StatefulWidget {
@@ -38,19 +34,15 @@ class _DownloadListViewState extends State<DownloadListView> {
             ? const Center(
                 child: Text('No Download'),
               )
-            : AnimatedList(
+            : ListView.builder(
                 key: animatedListGlobalKey,
                 controller: widget._scrollController,
                 padding: const EdgeInsets.all(16.0),
-                initialItemCount: state.downloadList.length,
-                itemBuilder: (context, index, animation) {
-                  return SlideTransition(
-                    position: animation.drive(
-                      listAddAnimation,
-                    ),
-                    child: DownloadCardView(
-                      downloadEntity: state.downloadList[index],
-                    ),
+                itemCount: state.downloadList.length,
+                itemBuilder: (context, index) {
+                  return DownloadCardView(
+                    downloadEntity: state
+                        .downloadList[state.downloadList.length - index - 1],
                   );
                 },
               ),

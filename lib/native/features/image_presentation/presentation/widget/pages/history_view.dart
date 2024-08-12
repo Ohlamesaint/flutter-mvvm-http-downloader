@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:perfect_corp_homework/native/features/image_presentation/view/components/image_detail_card_view.dart';
 import 'package:perfect_corp_homework/native/features/image_presentation/view_model/history_view_model.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../constant.dart';
-import '../../../../injection_container.dart';
+import '../components/image_detail_card_view.dart';
+
+import '../../../../../constant.dart';
+import '../../../../../injection_container.dart';
 import '../components/image_cell_view.dart';
 import 'image_lightbox_view.dart';
 
