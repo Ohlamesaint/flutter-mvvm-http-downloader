@@ -9,6 +9,15 @@ class MainActivity: FlutterActivity() {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(flutterEngine.dartExecutor.binaryMessager, METHOD_CHANNEL).setMethodCallHandler {
             call, result ->
+            when(call.method) {
+                "getDownloadListStream" -> print("getDownloadListStream")
+                "createDownload" -> print("createDownload")
+                "pauseDownload" -> print("pauseDownload")
+                "resumeDownload" -> print("resumeDownload")
+                "cancelDownload" -> print("cancelDownload")
+                "finishDownload" -> print("finishDownload")
+            }
+
         }
     }
 }
