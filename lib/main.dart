@@ -1,12 +1,32 @@
 import 'dart:developer';
+import 'dart:isolate';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+void _isolateMain(RootIsolateToken rootIsolateToken) async {
+  BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
+}
+
 void main() async {
+  // setUp background isolate
+  RootIsolateToken rootIsolateToken = RootIsolateToken.instance!;
+  Isolate.spawn(_isolateMain, rootIsolateToken);
+
+  // set methodChannel request
   WidgetsFlutterBinding.ensureInitialized();
+
+  EventChannel eventChannel = const EventChannel('http_downloader/updateDownloadList');
   MethodChannel methodChannel = const MethodChannel('http_downloader/download');
-  log(await (methodChannel.invokeMethod('createDownload', [])) as String);
+
+  Stream<Map<String, int>> progress = eventChannel.receiveBroadcastStream().map((event) => event.toString())
+
+  log(await (methodChannel.invokeMethod('createDownload', {
+    'urlString': 'https://photock.jp/photo/small/photo0000-4753.jpg'
+  })) as String);
+
+
+
   runApp(const MyApp());
 }
 
