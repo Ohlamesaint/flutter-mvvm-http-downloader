@@ -102,4 +102,10 @@ class DownloadRepositoryFlutterImpl implements DownloadRepository {
       return ServiceResult<Stream<String>>.error(e);
     }
   }
+
+  @override
+  Future<ServiceResult<int>> manualPauseDownload({required String downloadID}) {
+    // TODO: implement manualPauseDownload
+    throw UnimplementedError();
+  }
 }

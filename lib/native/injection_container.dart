@@ -5,6 +5,7 @@ import 'package:perfect_corp_homework/native/features/download/data/backend_serv
 import 'package:perfect_corp_homework/native/features/download/data/backend_service/service/backend_download_service.dart';
 import 'package:perfect_corp_homework/native/features/download/data/backend_service/service/backend_download_service_impl.dart';
 import 'package:perfect_corp_homework/native/features/download/data/repository/download_repository_flutter_impl.dart';
+import 'package:perfect_corp_homework/native/features/download/data/repository/download_repository_native_impl.dart';
 import 'package:perfect_corp_homework/native/features/image_presentation/view_model/history_view_model.dart';
 
 import 'features/download/domain/repository/download_repository.dart';
@@ -18,14 +19,14 @@ void setup() {
   // locator.registerLazySingleton<DownloadViewModel>(() => DownloadViewModel());
   // locator.registerLazySingleton<DownloadRepository.kt>(
   //     () => DownloadRepositoryMethodChannel());
-  locator.registerLazySingleton<BackendDownloadRepository>(
-      () => BackendDownloadRepositoryImpl());
-  locator.registerLazySingleton<BackendDownloadService>(
-      () => BackendDownloadServiceImpl(locator<BackendDownloadRepository>()));
-  locator.registerLazySingleton<BackendDownloadController>(
-      () => BackendDownloadControllerImpl(locator<BackendDownloadService>()));
-  locator.registerLazySingleton<DownloadRepository>(() =>
-      DownloadRepositoryFlutterImpl(locator<BackendDownloadController>()));
+  // locator.registerLazySingleton<BackendDownloadRepository>(
+  //     () => BackendDownloadRepositoryImpl());
+  // locator.registerLazySingleton<BackendDownloadService>(
+  //     () => BackendDownloadServiceImpl(locator<BackendDownloadRepository>()));
+  // locator.registerLazySingleton<BackendDownloadController>(
+  //     () => BackendDownloadControllerImpl(locator<BackendDownloadService>()));
+  locator.registerLazySingleton<DownloadRepository>(
+      () => DownloadRepositoryNativeImpl());
   locator.registerLazySingleton<ImageRepository>(() => ImageRepositoryImpl());
   locator.registerLazySingleton<HistoryViewModel>(() => HistoryViewModel());
 }

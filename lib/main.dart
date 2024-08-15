@@ -1,8 +1,12 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:isolate';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:perfect_corp_homework/native/features/download/data/model/download_model.dart';
+
+import 'native/features/download/data/backend_service/controller/mapper/service_result_to_raw_response.dart';
 
 void _isolateMain(RootIsolateToken rootIsolateToken) async {
   BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
@@ -16,16 +20,36 @@ void main() async {
   // set methodChannel request
   WidgetsFlutterBinding.ensureInitialized();
 
-  EventChannel eventChannel = const EventChannel('http_downloader/updateDownloadList');
+  EventChannel eventChannel =
+      const EventChannel('http_downloader/download/progress');
+  EventChannel finishedEventChannel =
+      const EventChannel('http_downloader/download/finished');
   MethodChannel methodChannel = const MethodChannel('http_downloader/download');
 
-  Stream<Map<String, int>> progress = eventChannel.receiveBroadcastStream().map((event) => event.toString())
+  Stream progress = eventChannel.receiveBroadcastStream();
+  progress.listen((data) {
+    log(data);
+  });
 
-  log(await (methodChannel.invokeMethod('createDownload', {
-    'urlString': 'https://photock.jp/photo/small/photo0000-4753.jpg'
-  })) as String);
+  Stream finished = finishedEventChannel.receiveBroadcastStream();
+  finished.listen((data) {
+    log(data);
+  });
 
-
+  MethodChannelResponse methodChannelResponse =
+      MethodChannelResponse<DownloadModel>.fromJson(
+          jsonDecode(await methodChannel.invokeMethod('createDownload', {
+            'urlString': 'https://photock.jp/photo/download/photo0000-4753.jpg'
+          })),
+          DownloadModel.fromJson);
+  log("StatusCode: ${methodChannelResponse.statusCode}");
+  DownloadModel downloadModel = methodChannelResponse.data;
+  log(downloadModel.downloadID);
+  log(downloadModel.url);
+  log(downloadModel.totalLength.toString());
+  log(downloadModel.currentLength.toString());
+  log(downloadModel.status.toString());
+  log(downloadModel.fileEntity.temporaryImagePath.toString());
 
   runApp(const MyApp());
 }

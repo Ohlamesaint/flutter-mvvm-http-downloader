@@ -1,15 +1,25 @@
 package com.example.perfect_corp_homework.model
 
 import FileEntity
+import com.example.perfect_corp_homework.repository.Waiter
 
 class DownloadEntity(
-    downloadID: String,
-    url: String,
-    totalLength: Int,
-    currentLength: Int = 0,
-    status: DownloadStatus = DownloadStatus.PENDING,
+    val downloadID: String,
+    val url: String,
+    val totalLength: Int,
+    var currentLength: Int = 0,
+    var status: DownloadStatus = DownloadStatus.pending,
+    val fileEntity: FileEntity,
+){
+//    val waiter: Waiter = Waiter()
 
-    fileEntity: FileEntity
+    fun updateProgress (length: Int) {
+        currentLength+=length
+    }
+//
+//    fun pauseDownload() {
+//        waiter.
+//    }
 
-){}
+}
 

@@ -45,11 +45,12 @@ class MethodChannelResponse<T> {
       : statusCode = 10004;
   MethodChannelResponse.success(this.data) : statusCode = 0;
 
-  factory MethodChannelResponse.fromJson(Map<String, dynamic> json) =>
-      MethodChannelResponse(
+  factory MethodChannelResponse.fromJson(Map<String, dynamic> json,
+          T Function(Map<String, dynamic>) factoryFunction) =>
+      MethodChannelResponse<T>(
           statusCode: json['statusCode'],
           errorMessage: json['errorMessage'],
-          data: json['data']);
+          data: factoryFunction(json['data']));
 
   Map<String, dynamic> toJson() => {
         'statusCode': statusCode,

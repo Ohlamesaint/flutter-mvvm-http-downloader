@@ -1,7 +1,10 @@
 import 'dart:io';
+import 'dart:isolate';
+import 'dart:ui';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:perfect_corp_homework/native/features/download/domain/repository/download_repository.dart';
@@ -20,10 +23,20 @@ void _createThumbnailDir() async {
   thumbnailDir.createSync(recursive: true);
 }
 
+void _isolateMain(RootIsolateToken rootIsolateToken) async {
+  BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
+}
+
 void main() async {
+  // setUp background isolate
+  RootIsolateToken rootIsolateToken = RootIsolateToken.instance!;
+  Isolate.spawn(_isolateMain, rootIsolateToken);
+
+  // set methodChannel request
+  WidgetsFlutterBinding.ensureInitialized();
+
   Bloc.observer = AppBlocObserver();
   setup();
-  WidgetsFlutterBinding.ensureInitialized();
   _createThumbnailDir();
   await Firebase.initializeApp();
   runApp(const MyApp());

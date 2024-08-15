@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "386752975853",
+    "project_id": "httpdownloader-9997b",
+    "storage_bucket": "httpdownloader-9997b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:386752975853:android:b73335cb9157ac9c330de4",
+        "android_client_info": {
+          "package_name": "com.example.perfect_corp_homework"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC0vlLU5Ftn1K9nf4zaEvjIVqenOJgjXKU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

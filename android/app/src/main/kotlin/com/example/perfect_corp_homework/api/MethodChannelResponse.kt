@@ -1,27 +1,21 @@
 package com.example.perfect_corp_homework.api
 
-class ServiceResultToMethodChannelResponseMapper<T> {
+import com.example.perfect_corp_homework.exception.BadRequestError
+import com.example.perfect_corp_homework.exception.JsonSerializationError
+import com.example.perfect_corp_homework.exception.NoInternetError
+import com.example.perfect_corp_homework.exception.UnSupportImageTypeError
+import com.example.perfect_corp_homework.exception.UnknownError
 
-}
+class MethodChannelResponse<T>(serviceResult: ServiceResult<T>) {
 
-class MethodChannelResponse<T> {
-
-    val statusCode: Int
-    val errorMessage: String?
-    val data: T?
-
-    constructor(statusCode: Int, errorMessage: String) {
-        this.statusCode = statusCode
-        this.errorMessage = errorMessage
-        this.data = null
+    val statusCode: Int = when(serviceResult.error) {
+        is UnSupportImageTypeError -> 10000
+        is BadRequestError -> 10001
+        is NoInternetError -> 10002
+        is UnknownError -> 10003
+        is JsonSerializationError -> 10004
+        else -> 0
     }
-
-    constructor(statusCode: Int, data: T) {
-        this.statusCode = 0
-        this.errorMessage = null
-        this.data = data
-    }
-
-
-
+    val errorMessage: String? = serviceResult.error?.message
+    val data: T? = serviceResult.data
 }
