@@ -72,7 +72,8 @@ class DownloadRepositoryFlutterImpl implements DownloadRepository {
   }
 
   @override
-  ServiceResult<Stream<String>> finishDownload({required String downloadID}) {
+  ServiceResult<Stream<String>> getFinishedEventStream(
+      {required String downloadID}) {
     try {
       MethodChannelResponse<Stream<String>> response =
           jsonDecode(backendDownloadController.resolveFinishedEvent());

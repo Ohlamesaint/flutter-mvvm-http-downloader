@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:perfect_corp_homework/native/features/download/data/backend_service/service/backend_download_service_impl.dart';
 import 'package:perfect_corp_homework/native/features/download/domain/entity/download_entity.dart';
 
+import '../../../features/download/domain/repository/download_repository.dart';
 import '../../../api/service_result.dart';
 import '../model/image_model.dart';
 import '../repository/image_repository.dart';
@@ -15,10 +16,14 @@ class HistoryViewModel extends ChangeNotifier {
   bool isFetchingData = true;
 
   List<ImageModel> imageModels = [];
+  DownloadRepository downloadRepository;
 
-  HistoryViewModel() {
-    BackendDownloadServiceImpl.finishedDownloadStreamController.stream
+  HistoryViewModel(this.downloadRepository) {
+    downloadRepository
+        .getFinishedEventStream()
+        .data!
         .listen((finishedDownloadEntity) async {
+      log(finishedDownloadEntity);
       await locator<ImageRepository>().saveImage(
           DownloadModel.fromJson(jsonDecode(finishedDownloadEntity)));
       await fetchImages();
@@ -33,7 +38,7 @@ class HistoryViewModel extends ChangeNotifier {
         await locator<ImageRepository>().fetchImages();
     if (serviceResult.error != null) {
       // TODO: Handle Error
-      log(serviceResult.getErrorMessage());
+      log("fetchImages ${serviceResult.getErrorMessage()}");
       return;
     }
     imageModels = serviceResult.data!;

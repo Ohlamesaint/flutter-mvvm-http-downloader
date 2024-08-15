@@ -15,6 +15,9 @@ class DownloadEntity(
 
     fun updateProgress (length: Int) {
         currentLength+=length
+        if(currentLength==totalLength){
+            status = DownloadStatus.done
+        }
     }
 //
 //    fun pauseDownload() {

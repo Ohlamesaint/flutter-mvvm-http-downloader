@@ -9,18 +9,12 @@ import '../../domain/entity/download_entity.dart';
 class DownloadRepositoryNativeImpl implements DownloadRepository {
   // return numbers of ongoing downloads
 
-  late EventChannel _progressEventChannel;
-  late EventChannel _finishedEventChannel;
-  late MethodChannel _methodChannel;
-
-  DownloadRepositoryNativeImpl() {
-    log("created");
-    _progressEventChannel =
-        const EventChannel('http_downloader/download/progress');
-    _finishedEventChannel =
-        const EventChannel('http_downloader/download/finished');
-    _methodChannel = const MethodChannel('http_downloader/download');
-  }
+  final EventChannel _progressEventChannel =
+      const EventChannel('http_downloader/download/progress');
+  final EventChannel _finishedEventChannel =
+      const EventChannel('http_downloader/download/finished');
+  final MethodChannel _methodChannel =
+      const MethodChannel('http_downloader/download');
 
   @override
   Future<ServiceResult<int>> createDownload({required String urlString}) async {
@@ -96,10 +90,10 @@ class DownloadRepositoryNativeImpl implements DownloadRepository {
   }
 
   @override
-  ServiceResult<Stream<String>> getDownloadListStream() {
+  ServiceResult<Stream> getDownloadListStream() {
     try {
-      ServiceResult<Stream<String>> result = ServiceResult.success(
-          _progressEventChannel.receiveBroadcastStream() as Stream<String>);
+      ServiceResult<Stream> result =
+          ServiceResult.success(_progressEventChannel.receiveBroadcastStream());
       return result;
     } catch (e) {
       return ServiceResult<Stream<String>>.error(e);
@@ -107,10 +101,10 @@ class DownloadRepositoryNativeImpl implements DownloadRepository {
   }
 
   @override
-  ServiceResult<Stream<String>> finishDownload({required String downloadID}) {
+  ServiceResult<Stream> getFinishedEventStream() {
     try {
-      ServiceResult<Stream<String>> result = ServiceResult.success(
-          _finishedEventChannel.receiveBroadcastStream() as Stream<String>);
+      ServiceResult<Stream> result =
+          ServiceResult.success(_finishedEventChannel.receiveBroadcastStream());
       return result;
     } catch (e) {
       return ServiceResult<Stream<String>>.error(e);

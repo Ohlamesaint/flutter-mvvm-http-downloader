@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:perfect_corp_homework/flutter/constant.dart';
 import 'package:perfect_corp_homework/native/api/app_exception.dart';
@@ -16,6 +18,7 @@ part 'download_data_state.dart';
 
 class DownloadDataBloc extends Bloc<DownloadDataEvent, DownloadDataState> {
   final DownloadRepository downloadRepository;
+
   // late StreamSubscription _subscription = BackendDownloadServiceImpl.allDownloadStreamController.stream.
   DownloadDataBloc(this.downloadRepository)
       : super(const DownloadInitState([])) {
@@ -25,13 +28,12 @@ class DownloadDataBloc extends Bloc<DownloadDataEvent, DownloadDataState> {
   }
 
   onGetDownloadDataSource(DownloadDataEvent event, Emitter emit) {
-    return emit
-        .forEach(BackendDownloadServiceImpl.allDownloadStreamController.stream,
-            onData: (data) {
+    return emit.forEach(downloadRepository.getDownloadListStream().data!,
+        onData: (data) {
+      log(data);
       final List rawDownloadEntityList = json.decode(data);
       final downloadEntities = rawDownloadEntityList
-          .map((rawDownloadEntity) =>
-              DownloadModel.fromJson(jsonDecode(rawDownloadEntity)))
+          .map((rawDownloadEntity) => DownloadModel.fromJson(rawDownloadEntity))
           .toList();
       return DownloadUpdatedFromSource([...downloadEntities]);
     });

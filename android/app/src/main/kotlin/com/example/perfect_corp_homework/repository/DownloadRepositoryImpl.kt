@@ -1,11 +1,13 @@
 package com.example.perfect_corp_homework.repository
 
+
 import FileEntity
 import android.os.Build
 import android.webkit.MimeTypeMap
 import androidx.annotation.RequiresApi
 import com.example.perfect_corp_homework.MainActivity
 import com.example.perfect_corp_homework.model.DownloadEntity
+import com.example.perfect_corp_homework.model.DownloadStatus
 import com.example.perfect_corp_homework.util.FileUtil
 import com.example.perfect_corp_homework.util.NetworkUtil
 import kotlinx.coroutines.Dispatchers
@@ -25,7 +27,7 @@ var log: Logger = LoggerFactory.getLogger("DownloadRepository")
 
 class DownloadRepositoryImpl() : DownloadRepository {
 
-    private val LENGTH_PER_REQUEST: Int = 1000000
+    private val LENGTH_PER_REQUEST: Int = 500000
 
     override suspend fun fetchImageMetadata(urlString: String): DownloadEntity {
         val headers = NetworkUtil.getHeaders(urlString) ?: TODO("Handle Error")
@@ -110,7 +112,7 @@ class DownloadRepositoryImpl() : DownloadRepository {
                     withContext(Dispatchers.Main) {
                         updateProgress.accept(Pair(downloadEntity.downloadID, progress))
                         if(index==totalRequest-1) {
-                            MainActivity.finishedEventSink!!.success("Finished")
+                            MainActivity.finishedEventSink!!.success(MainActivity.gson.toJson(downloadEntity))
                         }
                     }
                 }

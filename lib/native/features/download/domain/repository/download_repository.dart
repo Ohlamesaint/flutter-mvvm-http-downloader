@@ -10,5 +10,5 @@ abstract interface class DownloadRepository {
   Future<ServiceResult<int>> manualPauseDownload({required String downloadID});
   // Future<ServiceResult<void>> pauseAllDownload();
   // Future<ServiceResult<void>> resumeAllDownloadWithoutManualPaused();
-  ServiceResult<Stream> finishDownload({required String downloadID});
+  ServiceResult<Stream> getFinishedEventStream();
 }

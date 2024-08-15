@@ -20,9 +20,13 @@ class ImageRepositoryImpl implements ImageRepository {
   @override
   Future<ServiceResult<void>> saveImage(DownloadEntity downloadEntity) async {
     try {
-      String documentAbsolute = downloadEntity.fileEntity.imagePath;
+      String documentAbsolute = await FileUtil.generatePersistFileName(
+          filename: downloadEntity.fileEntity.filename,
+          fileType: downloadEntity.fileEntity.fileType);
       String documentThumbnailAbsolute =
-          downloadEntity.fileEntity.thumbnailPath;
+          await FileUtil.generatePersistThumbnailName(
+              filename: downloadEntity.fileEntity.filename,
+              fileType: downloadEntity.fileEntity.fileType);
       File tempFile = File(downloadEntity.fileEntity.temporaryImagePath);
       var persistFile = await FileUtil.moveFile(tempFile, documentAbsolute);
       // compress the image as thumbnail
@@ -34,7 +38,7 @@ class ImageRepositoryImpl implements ImageRepository {
         'createTime': DateTime.now(),
       });
 
-      log('file ${downloadEntity.fileEntity.filename} been added to firebase');
+      log('file $documentAbsolute been added to firebase');
     } catch (e) {
       return ServiceResult.error(e);
     }

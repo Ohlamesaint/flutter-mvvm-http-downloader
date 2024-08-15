@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:path_provider/path_provider.dart';
 
 class FileUtil {
   /// private constructor for util class
@@ -47,5 +48,26 @@ class FileUtil {
     Random rnd = Random();
     return String.fromCharCodes(Iterable.generate(
         length, (_) => chars.codeUnitAt(rnd.nextInt(chars.length))));
+  }
+
+  static Future<String> generatePersistThumbnailName(
+      {required String filename, required String fileType}) async {
+    String persistAbsolute =
+        '${(await getApplicationDocumentsDirectory()).path}/thumbnails/$filename.$fileType';
+    return persistAbsolute;
+  }
+
+  static Future<String> generatePersistFileName(
+      {required String filename, required String fileType}) async {
+    String persistAbsolute =
+        '${(await getApplicationDocumentsDirectory()).path}/$filename.$fileType';
+    return persistAbsolute;
+  }
+
+  static Future<String> generateTemporaryFileName(
+      {required String filename, required String fileType}) async {
+    String temporaryAbsolute =
+        '${(await getTemporaryDirectory()).path}/$filename.$fileType';
+    return temporaryAbsolute;
   }
 }

@@ -1,20 +1,17 @@
 package com.example.perfect_corp_homework
 
-import android.os.Handler
-import androidx.annotation.NonNull
 import com.example.perfect_corp_homework.api.MethodChannelResponse
 import com.example.perfect_corp_homework.model.DownloadEntity
 import com.example.perfect_corp_homework.repository.DownloadRepositoryImpl
 import com.example.perfect_corp_homework.service.DownloadService
 import com.example.perfect_corp_homework.service.DownloadServiceImpl
 import com.google.gson.Gson
+import io.flutter.Log
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
-import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.StandardMethodCodec
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -33,18 +30,20 @@ class MainActivity: FlutterActivity() {
         var finishedEventSink: EventChannel.EventSink? = null
 
 
-        private val gson = Gson()
+        val gson = Gson()
 
-        val updateProgress = { downloads: List<DownloadEntity> ->
-            log.info(downloads.toString())
-            log.info((progressEventSink==null).toString())
+        val sendProgressEvent = { downloads: List<DownloadEntity> ->
             progressEventSink!!.success(gson.toJson(downloads))
+        }
+
+        val finishedEvent = { downloadEntity: DownloadEntity ->
+            finishedEventSink!!.success(gson.toJson(downloadEntity))
         }
     }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-
+        log.info("configuring...")
         var progressEventChannel = EventChannel(flutterEngine.dartExecutor.binaryMessenger, PROGRESS_EVENT_CHANNNEL).setStreamHandler(
             object: EventChannel.StreamHandler{
                 override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
@@ -53,8 +52,10 @@ class MainActivity: FlutterActivity() {
                 }
 
                 override fun onCancel(arguments: Any?) {
+                    log.info("progressEvent Canceled")
                     progressEventSink = null
                 }
+
             }
         )
 
@@ -66,6 +67,7 @@ class MainActivity: FlutterActivity() {
                 }
 
                 override fun onCancel(arguments: Any?) {
+                    log.info("finishedEventChannel Canceled")
                     finishedEventSink = null
                 }
             }
@@ -79,6 +81,7 @@ class MainActivity: FlutterActivity() {
             call, result ->
             when(call.method) {
                 "createDownload" -> runBlocking {
+                    Log.d("CreateDownload", "FUCK")
                     val urlString: String = call.argument<String>("urlString") as String
                     launch(Dispatchers.IO) {
                         val serviceResult = downloadService.createDownload(urlString = urlString)
