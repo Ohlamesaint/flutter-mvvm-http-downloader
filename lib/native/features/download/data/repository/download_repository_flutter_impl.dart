@@ -72,35 +72,24 @@ class DownloadRepositoryFlutterImpl implements DownloadRepository {
   }
 
   @override
-  ServiceResult<Stream<String>> getFinishedEventStream(
-      {required String downloadID}) {
+  ServiceResult<Stream> getFinishedEventStream() {
     try {
-      MethodChannelResponse<Stream<String>> response =
-          jsonDecode(backendDownloadController.resolveFinishedEvent());
-
-      return MethodChannelResponseToServiceResultMapper<Stream<String>>()
-          .mapping(response, null);
+      return ServiceResult.success(
+          BackendDownloadServiceImpl.finishedDownloadStreamController.stream);
     } catch (e) {
       log('finishDownload: ${e.toString()}');
-      return ServiceResult<Stream<String>>.error(e);
+      return ServiceResult<Stream>.error(e);
     }
   }
 
   @override
-  ServiceResult<Stream<String>> getDownloadListStream() {
+  ServiceResult<Stream> getDownloadListStream() {
     try {
-      MethodChannelResponse<Stream<String>> response =
-          MethodChannelResponse<Stream<String>>(
-              statusCode: 0,
-              errorMessage: null,
-              data: BackendDownloadServiceImpl
-                  .allDownloadStreamController.stream);
-
-      return MethodChannelResponseToServiceResultMapper<Stream<String>>()
-          .mapping(response, null);
+      return ServiceResult.success(
+          BackendDownloadServiceImpl.allDownloadStreamController.stream);
     } catch (e) {
       log('getDownloadListStream: ${e.toString()}');
-      return ServiceResult<Stream<String>>.error(e);
+      return ServiceResult<Stream>.error(e);
     }
   }
 

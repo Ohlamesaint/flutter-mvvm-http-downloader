@@ -68,19 +68,44 @@ class DownloadServiceImpl constructor(private val downloadRepository: DownloadRe
         }
     }
 
-    override fun pauseDownload(downloadID: String): ServiceResult<Int> {
-        TODO("Not yet implemented")
+
+    private fun ongoingDownloadCount(): Int {
+        return id2DownloadEntity.values.filter { it.status == DownloadStatus.ongoing }.size
     }
 
-    override fun resumeDownload(downloadID: String): ServiceResult<Int> {
-        TODO("Not yet implemented")
+    override suspend fun pauseDownload(downloadID: String): ServiceResult<Int> {
+        val target = id2DownloadEntity[downloadID]
+        target!!.pauseDownload()
+        withContext(Dispatchers.Main){
+            MainActivity.sendProgressEvent(id2DownloadEntity.values.toList())
+        }
+        return ServiceResult(ongoingDownloadCount())
     }
 
-    override fun cancelDownload(downloadID: String): ServiceResult<Int> {
-        TODO("Not yet implemented")
+    override suspend fun resumeDownload(downloadID: String): ServiceResult<Int> {
+        val target = id2DownloadEntity[downloadID]
+        target!!.resumeDownload()
+        withContext(Dispatchers.Main){
+            MainActivity.sendProgressEvent(id2DownloadEntity.values.toList())
+        }
+        return ServiceResult(ongoingDownloadCount())
     }
 
-    override fun manualPauseDownload(downloadID: String): ServiceResult<Int> {
-        TODO("Not yet implemented")
+    override suspend fun cancelDownload(downloadID: String): ServiceResult<Int> {
+        val target = id2DownloadEntity[downloadID]
+        target!!.cancelDownload()
+        withContext(Dispatchers.Main){
+            MainActivity.sendProgressEvent(id2DownloadEntity.values.toList())
+        }
+        return ServiceResult(ongoingDownloadCount())
+    }
+
+    override suspend fun manualPauseDownload(downloadID: String): ServiceResult<Int> {
+        val target = id2DownloadEntity[downloadID]
+        target!!.manualPauseDownload()
+        withContext(Dispatchers.Main){
+            MainActivity.sendProgressEvent(id2DownloadEntity.values.toList())
+        }
+        return ServiceResult(ongoingDownloadCount())
     }
 }

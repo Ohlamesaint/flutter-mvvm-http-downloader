@@ -8,6 +8,7 @@ import 'package:perfect_corp_homework/native/features/download/data/repository/d
 import 'package:perfect_corp_homework/native/features/download/data/repository/download_repository_native_impl.dart';
 import 'package:perfect_corp_homework/native/features/image_presentation/view_model/history_view_model.dart';
 
+import 'features/download/data/backend_service/controller/backend_download_controller_impl.dart';
 import 'features/download/domain/repository/download_repository.dart';
 import 'features/image_presentation/repository/image_repository.dart';
 import 'features/image_presentation/repository/image_repository_impl.dart';
@@ -24,6 +25,8 @@ void setup() {
   //     () => BackendDownloadServiceImpl(locator<BackendDownloadRepository>()));
   // locator.registerLazySingleton<BackendDownloadController>(
   //     () => BackendDownloadControllerImpl(locator<BackendDownloadService>()));
+  // locator.registerLazySingleton<DownloadRepository>(() =>
+  //     DownloadRepositoryFlutterImpl(locator<BackendDownloadController>()));
   locator.registerLazySingleton<DownloadRepository>(
       () => DownloadRepositoryNativeImpl());
   locator.registerLazySingleton<ImageRepository>(() => ImageRepositoryImpl());

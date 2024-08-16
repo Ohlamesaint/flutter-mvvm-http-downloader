@@ -17,10 +17,13 @@ import 'package:perfect_corp_homework/native/features/download/presentation/bloc
 import 'package:perfect_corp_homework/native/features/download/presentation/widget/pages/download_view.dart';
 import 'package:perfect_corp_homework/native/features/image_presentation/presentation/widget/pages/history_view.dart';
 
-void _createThumbnailDir() async {
+void _createPersistDir() async {
   Directory thumbnailDir = Directory(
       '${(await getApplicationDocumentsDirectory()).path}/thumbnails/');
+  Directory persistDir =
+      Directory('${(await getApplicationDocumentsDirectory()).path}/images/');
   thumbnailDir.createSync(recursive: true);
+  persistDir.createSync(recursive: true);
 }
 
 void _isolateMain(RootIsolateToken rootIsolateToken) async {
@@ -37,7 +40,7 @@ void main() async {
 
   Bloc.observer = AppBlocObserver();
   setup();
-  _createThumbnailDir();
+  _createPersistDir();
   await Firebase.initializeApp();
   runApp(const MyApp());
 }

@@ -30,6 +30,7 @@ class ImageRepositoryImpl implements ImageRepository {
       File tempFile = File(downloadEntity.fileEntity.temporaryImagePath);
       var persistFile = await FileUtil.moveFile(tempFile, documentAbsolute);
       // compress the image as thumbnail
+
       await FileUtil.compressFile(persistFile, documentThumbnailAbsolute);
 
       await imageDatabase.add({
@@ -50,13 +51,18 @@ class ImageRepositoryImpl implements ImageRepository {
   Future<ServiceResult<List<ImageModel>>> fetchImages() async {
     late ServiceResult<List<ImageModel>> serviceResult;
     try {
-      String persistDirectory = (await getApplicationDocumentsDirectory()).path;
-      String thumbnailsDirectory = '$persistDirectory/thumbnails/';
+      String persistDirectory = await FileUtil.getPersistImageDirectory();
+      String thumbnailsDirectory = await FileUtil.getThumbnailImageDirectory();
 
       List<File> originImages =
           FileUtil.getAllFilesInDirectory(persistDirectory);
       List<File> thumbnails =
           FileUtil.getAllFilesInDirectory(thumbnailsDirectory);
+
+      if (originImages.isEmpty) {
+        return ServiceResult.success([]);
+      }
+
       Map<String, ImageModel> filename2ImageModel = <String, ImageModel>{};
 
       for (File originImage in originImages) {
@@ -94,6 +100,7 @@ class ImageRepositoryImpl implements ImageRepository {
       });
       serviceResult = ServiceResult.success(imageModelLists);
     } catch (e) {
+      print(e.toString());
       return ServiceResult.error(e);
     }
 

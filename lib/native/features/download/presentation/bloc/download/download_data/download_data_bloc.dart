@@ -30,7 +30,6 @@ class DownloadDataBloc extends Bloc<DownloadDataEvent, DownloadDataState> {
   onGetDownloadDataSource(DownloadDataEvent event, Emitter emit) {
     return emit.forEach(downloadRepository.getDownloadListStream().data!,
         onData: (data) {
-      log(data);
       final List rawDownloadEntityList = json.decode(data);
       final downloadEntities = rawDownloadEntityList
           .map((rawDownloadEntity) => DownloadModel.fromJson(rawDownloadEntity))

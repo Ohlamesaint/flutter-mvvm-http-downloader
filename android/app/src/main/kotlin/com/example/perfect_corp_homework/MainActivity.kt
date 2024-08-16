@@ -36,7 +36,7 @@ class MainActivity: FlutterActivity() {
             progressEventSink!!.success(gson.toJson(downloads))
         }
 
-        val finishedEvent = { downloadEntity: DownloadEntity ->
+        val sendFinishedEvent = { downloadEntity: DownloadEntity ->
             finishedEventSink!!.success(gson.toJson(downloadEntity))
         }
     }
@@ -80,8 +80,7 @@ class MainActivity: FlutterActivity() {
             taskQueue).setMethodCallHandler {
             call, result ->
             when(call.method) {
-                "createDownload" -> runBlocking {
-                    Log.d("CreateDownload", "FUCK")
+                "createDownload" -> runBlocking{
                     val urlString: String = call.argument<String>("urlString") as String
                     launch(Dispatchers.IO) {
                         val serviceResult = downloadService.createDownload(urlString = urlString)
@@ -90,28 +89,28 @@ class MainActivity: FlutterActivity() {
                         result.success(jsonString)
                     }
                 }
-                "pauseDownload" -> {
+                "pauseDownload" -> runBlocking {
                     val downloadID: String = call.argument<String>("downloadID") as String
                     val serviceResult = downloadService.pauseDownload(downloadID = downloadID)
                     val methodChannelResponse = MethodChannelResponse<Int>(serviceResult)
                     val jsonString = gson.toJson(methodChannelResponse)
                     result.success(jsonString)
                 }
-                "resumeDownload" -> {
+                "resumeDownload" -> runBlocking {
                     val downloadID: String = call.argument<String>("downloadID") as String
                     val serviceResult = downloadService.resumeDownload(downloadID = downloadID)
                     val methodChannelResponse = MethodChannelResponse<Int>(serviceResult)
                     val jsonString = gson.toJson(methodChannelResponse)
                     result.success(jsonString)
                 }
-                "cancelDownload" -> {
+                "cancelDownload" -> runBlocking {
                     val downloadID: String = call.argument<String>("downloadID") as String
                     val serviceResult = downloadService.cancelDownload(downloadID = downloadID)
                     val methodChannelResponse = MethodChannelResponse<Int>(serviceResult)
                     val jsonString = gson.toJson(methodChannelResponse)
                     result.success(jsonString)
                 }
-                "manualPauseDownload" -> {
+                "manualPauseDownload" -> runBlocking {
                     val downloadID: String = call.argument<String>("downloadID") as String
                     val serviceResult = downloadService.pauseDownload(downloadID = downloadID)
                     val methodChannelResponse = MethodChannelResponse<Int>(serviceResult)

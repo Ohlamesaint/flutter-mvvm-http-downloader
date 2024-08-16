@@ -57,10 +57,18 @@ class FileUtil {
     return persistAbsolute;
   }
 
+  static Future<String> getThumbnailImageDirectory() async {
+    return '${(await getApplicationDocumentsDirectory()).path}/thumbnails/';
+  }
+
+  static Future<String> getPersistImageDirectory() async {
+    return '${(await getApplicationDocumentsDirectory()).path}/images/';
+  }
+
   static Future<String> generatePersistFileName(
       {required String filename, required String fileType}) async {
     String persistAbsolute =
-        '${(await getApplicationDocumentsDirectory()).path}/$filename.$fileType';
+        '${(await getApplicationDocumentsDirectory()).path}/images/$filename.$fileType';
     return persistAbsolute;
   }
 

@@ -10,16 +10,23 @@ import com.example.perfect_corp_homework.model.DownloadEntity
 import com.example.perfect_corp_homework.model.DownloadStatus
 import com.example.perfect_corp_homework.util.FileUtil
 import com.example.perfect_corp_homework.util.NetworkUtil
+import io.flutter.Log
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.withContext
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.nio.file.Files
 import java.util.function.Consumer
+import kotlin.io.path.deleteIfExists
 import kotlin.math.min
 import kotlin.system.measureTimeMillis
 
@@ -64,7 +71,6 @@ class DownloadRepositoryImpl() : DownloadRepository {
             url = urlString,
             totalLength = contentLength,
             fileEntity = fileEntity,
-
             )
         return downloadEntity
     }
@@ -77,15 +83,25 @@ class DownloadRepositoryImpl() : DownloadRepository {
 
         val requests = List(totalRequest) { it }
 
+        val downloadScope = CoroutineScope(Dispatchers.IO)
+        downloadEntity.scope = downloadScope
+
         val time = measureTimeMillis {
-            coroutineScope {
-                val channel = Channel<Int>()
+
+
+            downloadScope.launch {
+                val progressChannel = Channel<Int>()
                 val tempDirectory = Files.createTempDirectory(downloadEntity.fileEntity.filename)
+
 
                 requests.map { requestIndex ->
 
-
                     async {
+                        if(downloadEntity.status == DownloadStatus.paused) {
+                            downloadEntity.channel.receive()
+                            Log.d("DownloadRepositoryImpl", "Stopped")
+                        }
+                        Log.d("DownloadRepositoryImpl", "$requestIndex request started")
                         val tempFileSegment = File.createTempFile(
                             "${requestIndex}_${downloadEntity.fileEntity.filename}_",
                             null,
@@ -103,30 +119,36 @@ class DownloadRepositoryImpl() : DownloadRepository {
                             end = end,
                             file = tempFileSegment
                         )
-                        channel.send(length)
+                        progressChannel.send(length)
                     }
+
                 }
 
                 repeat(totalRequest) { index ->
-                    val progress = channel.receive()
+                    val progress = progressChannel.receive()
                     withContext(Dispatchers.Main) {
                         updateProgress.accept(Pair(downloadEntity.downloadID, progress))
                         if(index==totalRequest-1) {
+                            FileUtil.combineFiles(
+                                tempDirectory.toFile().listFiles()!!.toMutableList().sortedBy { it.name.split('_')[0].toInt()  },
+                                File(downloadEntity.fileEntity.temporaryImagePath)
+                            )
+                            tempDirectory.deleteIfExists()
                             MainActivity.finishedEventSink!!.success(MainActivity.gson.toJson(downloadEntity))
                         }
                     }
                 }
-                FileUtil.combineFiles(
-                    tempDirectory.toFile().listFiles()!!.toMutableList().sortedBy { it.name.split('_')[0].toInt()  },
-                    File(downloadEntity.fileEntity.temporaryImagePath)
-                )
+
                 log.info("file ${downloadEntity.fileEntity.temporaryImagePath} download complete")
 
             }
 
+
         }
         log.info("Elapsed Time: $time milliseconds, Total Bytes: ${downloadEntity.totalLength}")
     }
+
+
 }
 
 class Waiter(private val channel: Channel<Unit> = Channel<Unit>()) {

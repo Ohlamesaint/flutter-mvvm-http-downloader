@@ -8,8 +8,8 @@ import java.util.function.Consumer
 interface DownloadService: CoroutineScope{
     suspend fun createDownload(urlString: String): ServiceResult<Int>
     suspend fun startDownload(downloadEntity: DownloadEntity): Unit
-    fun pauseDownload(downloadID: String): ServiceResult<Int>
-    fun resumeDownload(downloadID: String): ServiceResult<Int>
-    fun cancelDownload(downloadID: String): ServiceResult<Int>
-    fun manualPauseDownload(downloadID: String): ServiceResult<Int>
+    suspend fun pauseDownload(downloadID: String): ServiceResult<Int>
+    suspend fun resumeDownload(downloadID: String): ServiceResult<Int>
+    suspend fun cancelDownload(downloadID: String): ServiceResult<Int>
+    suspend fun manualPauseDownload(downloadID: String): ServiceResult<Int>
 }
