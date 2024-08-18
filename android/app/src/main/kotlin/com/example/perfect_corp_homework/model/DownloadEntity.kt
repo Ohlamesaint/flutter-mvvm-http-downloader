@@ -1,6 +1,7 @@
 package com.example.perfect_corp_homework.model
 
 import FileEntity
+import android.util.Log
 import com.example.perfect_corp_homework.repository.Waiter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -16,7 +17,7 @@ class DownloadEntity(
     val totalLength: Int,
     var currentLength: Int = 0,
     var status: DownloadStatus = DownloadStatus.pending,
-    var channel: Channel<Unit>  = Channel<Unit>(),
+    var channel: Channel<Unit>  = Channel<Unit>(0),
     var scope: CoroutineScope? = null,
     val fileEntity: FileEntity,
 ){
@@ -31,6 +32,7 @@ class DownloadEntity(
 
     fun pauseDownload() {
         status = DownloadStatus.paused
+        Log.d("DownloadEntity", "paused")
     }
 
     fun cancelDownload() {
@@ -43,9 +45,10 @@ class DownloadEntity(
         status = DownloadStatus.manualPaused
     }
 
-    fun resumeDownload() {
+    suspend fun resumeDownload() {
+        channel.send(Unit)
         status = DownloadStatus.ongoing
-        channel.broadcast()
+        Log.d("DownloadEntity", "resumed")
     }
 //
 //    fun pauseDownload() {

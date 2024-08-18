@@ -8,7 +8,7 @@ import 'package:perfect_corp_homework/native/features/download/data/mapper/raw_r
 
 import '../../../../features/download/domain/repository/download_repository.dart';
 
-class DownloadRepositoryFlutterImpl implements DownloadRepository {
+final class DownloadRepositoryFlutterImpl implements DownloadRepository {
   BackendDownloadController backendDownloadController;
 
   DownloadRepositoryFlutterImpl(this.backendDownloadController);

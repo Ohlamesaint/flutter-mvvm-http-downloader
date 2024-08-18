@@ -1,5 +1,6 @@
 package com.example.perfect_corp_homework.service
 
+import android.util.Log
 import com.example.perfect_corp_homework.MainActivity
 import com.example.perfect_corp_homework.api.ServiceResult
 import com.example.perfect_corp_homework.model.DownloadEntity
@@ -39,6 +40,7 @@ class DownloadServiceImpl constructor(private val downloadRepository: DownloadRe
 
             return ServiceResult<Int>(data = calculateOngoingDownload())
         } catch (e: Exception) {
+            Log.d("createDownload", e.message!!)
             return ServiceResult<Int>(error = e)
         }
     }

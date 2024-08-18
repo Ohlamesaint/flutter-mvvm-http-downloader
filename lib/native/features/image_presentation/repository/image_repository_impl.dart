@@ -100,7 +100,6 @@ class ImageRepositoryImpl implements ImageRepository {
       });
       serviceResult = ServiceResult.success(imageModelLists);
     } catch (e) {
-      print(e.toString());
       return ServiceResult.error(e);
     }
 

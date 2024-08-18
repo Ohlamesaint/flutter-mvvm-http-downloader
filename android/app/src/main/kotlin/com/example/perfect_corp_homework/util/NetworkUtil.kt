@@ -1,10 +1,14 @@
 package com.example.perfect_corp_homework.util
 
-import android.text.TextUtils
+import android.content.Context
+import android.net.ConnectivityManager
+import android.util.Log
+import com.example.perfect_corp_homework.exception.BadRequestError
+import com.example.perfect_corp_homework.exception.NoInternetError
+import com.example.perfect_corp_homework.exception.UnknownError
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CompletionHandler
 import kotlinx.coroutines.CoroutineName
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.Call
 import okhttp3.Callback
@@ -12,13 +16,12 @@ import okhttp3.Headers
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
-import java.io.IOException
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-
 import org.slf4j.LoggerFactory
 import java.io.File
+import java.io.IOException
 import kotlin.coroutines.coroutineContext
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 
 class NetworkUtil private constructor() {
@@ -28,32 +31,43 @@ class NetworkUtil private constructor() {
         private val log = LoggerFactory.getLogger("NetworkUtil")
 
 
-
-        suspend fun getHeaders(urlString: String): Headers? {
+        suspend fun getHeaders(urlString: String): Headers {
 
             val request = Request.Builder().head().url(urlString).build()
             try {
                 val response = OkHttpClient().newCall(request).await()
                 return response.headers
-            } catch (e: Exception) {
-                e.printStackTrace()
+            } catch (e: IllegalArgumentException) {
+                throw BadRequestError()
+            } catch (e: IllegalStateException) {
+                throw NoInternetError()
+            } catch(e: Exception) {
+                throw UnknownError(e)
             }
-            return null
         }
 
         suspend fun downloadWithRange(urlString: String, start: Int, end: Int, file: File): Unit {
-            val request = Request.Builder().url(urlString).addHeader("range", "bytes=${start}-${end}").build()
 
-            val response = OkHttpClient().newCall(request).await();
+            try {
+                val request = Request.Builder().url(urlString).addHeader("range", "bytes=${start}-${end}").build()
 
-            if(response.body == null) {
-                throw Exception("No Data")
+                val response = OkHttpClient().newCall(request).await();
+
+                if(response.body == null) {
+                    throw Exception("No Data")
+                }
+
+                FileUtil.storeByteStreamToFile(response.body!!.byteStream(), file)
+
+                log.info("${coroutineContext[CoroutineName.Key]} is executing on thread : ${Thread.currentThread().name}, request completed, finished with length ${start}-${end} in ${file.name}")
+                response.close()
+            } catch(e: IllegalStateException) {
+                Log.d("NetworkUtil", "downloadWithRange: Request early canceled")
+            } catch(e: Exception) {
+                throw UnknownError(e)
             }
 
-            FileUtil.storeByteStreamToFile(response.body!!.byteStream(), file)
 
-            log.info("${coroutineContext[CoroutineName.Key]} is executing on thread : ${Thread.currentThread().name}, request completed, finished with length ${start}-${end} in ${file.name}")
-            response.close()
         }
     }
 }

@@ -1,13 +1,34 @@
 package com.example.perfect_corp_homework.exception
 
-open class AppException(message: String): Exception(message)
+import com.example.perfect_corp_homework.kBadRequestErrorMessage
+import com.example.perfect_corp_homework.kNoInternetErrorMessage
+import com.example.perfect_corp_homework.kUnSupportMediaTypeErrorMessage
 
-class UnSupportImageTypeError(message: String): AppException(message)
+open class AppException(): Exception()
 
-class BadRequestError(message: String): AppException(message)
+class UnSupportImageTypeError(): AppException() {
+    override val message: String
+        get() = kUnSupportMediaTypeErrorMessage
+}
 
-class NoInternetError(message: String): AppException(message)
+class BadRequestError(): AppException() {
+    override val message: String
+        get() = kBadRequestErrorMessage
+}
 
-class UnknownError(message: String): AppException(message)
+class NoInternetError(): AppException() {
+    override val message: String
+        get() = kNoInternetErrorMessage
+}
 
-class JsonSerializationError(message: String): AppException(message)
+class UnknownError(private var error: Exception): AppException() {
+    override val message: String
+            get() = "UnExpected Error: ${error.message}"
+    override val cause: Throwable
+        get() = error
+}
+
+class JsonSerializationError(private var error: Exception): AppException() {
+    override val message: String
+        get() = "JsonSerializationError: ${error.message}"
+}

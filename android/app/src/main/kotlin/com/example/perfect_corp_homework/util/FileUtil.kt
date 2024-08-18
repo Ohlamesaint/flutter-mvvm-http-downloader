@@ -17,8 +17,6 @@ class FileUtil private constructor() {
 
     companion object {
 
-        private val externalStorageDirectory = Environment.getExternalStorageDirectory()
-        private val downloadCacheDirectory = Environment.getDownloadCacheDirectory()
 
         suspend fun combineFiles (fileSegments: List<File>, targetFile: File) : File {
 

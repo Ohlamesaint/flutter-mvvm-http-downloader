@@ -37,42 +37,43 @@ class DownloadRepositoryImpl() : DownloadRepository {
     private val LENGTH_PER_REQUEST: Int = 500000
 
     override suspend fun fetchImageMetadata(urlString: String): DownloadEntity {
-        val headers = NetworkUtil.getHeaders(urlString) ?: TODO("Handle Error")
 
-        val contentLengthInfo = headers["Content-Length"]
-        val mimeTypeInfo = headers["Content-Type"]
-        val acceptRangesInfo = headers["Accept-Ranges"]
+            val headers = NetworkUtil.getHeaders(urlString)
 
-        val contentLength = contentLengthInfo?.toInt() ?: 0
-        val isAcceptRange = acceptRangesInfo == "bytes"
+            val contentLengthInfo = headers["Content-Length"]
+            val mimeTypeInfo = headers["Content-Type"]
+            val acceptRangesInfo = headers["Accept-Ranges"]
 
-        if(!isAcceptRange) {
-            TODO("Handle Exception")
-        }
+            val contentLength = contentLengthInfo?.toInt() ?: 0
+            val isAcceptRange = acceptRangesInfo == "bytes"
 
-        val mime = MimeTypeMap.getSingleton()
+            if(!isAcceptRange) {
+                TODO("Handle Exception")
+            }
+            val mime = MimeTypeMap.getSingleton()
 
-        val filename = FileUtil.generateRandomFilename()
-        val fileExtension = mime.getExtensionFromMimeType(mimeTypeInfo)!!
+            val filename = FileUtil.generateRandomFilename()
+            val fileExtension = mime.getExtensionFromMimeType(mimeTypeInfo)!!
 
-        val tempImageFile = withContext(Dispatchers.IO) {
-            File.createTempFile("${filename}_", ".${fileExtension}")
-        }
-        val fileEntity = FileEntity(
-            filename = filename,
-            fileType = fileExtension,
-            thumbnailPath = "",
-            imagePath = "",
-            temporaryImagePath = tempImageFile.absolutePath
-        )
-
-        val downloadEntity = DownloadEntity(
-            downloadID = filename,
-            url = urlString,
-            totalLength = contentLength,
-            fileEntity = fileEntity,
+            val tempImageFile = withContext(Dispatchers.IO) {
+                File.createTempFile("${filename}_", ".${fileExtension}")
+            }
+            val fileEntity = FileEntity(
+                filename = filename,
+                fileType = fileExtension,
+                thumbnailPath = "",
+                imagePath = "",
+                temporaryImagePath = tempImageFile.absolutePath
             )
-        return downloadEntity
+
+            val downloadEntity = DownloadEntity(
+                downloadID = filename,
+                url = urlString,
+                totalLength = contentLength,
+                fileEntity = fileEntity,
+            )
+            return downloadEntity
+
     }
 
 
@@ -90,54 +91,46 @@ class DownloadRepositoryImpl() : DownloadRepository {
 
 
             downloadScope.launch {
-                val progressChannel = Channel<Int>()
                 val tempDirectory = Files.createTempDirectory(downloadEntity.fileEntity.filename)
-
+                Log.d("DownloadRepositoryImpl", "requests Length: ${requests.size}")
 
                 requests.map { requestIndex ->
 
-                    async {
-                        if(downloadEntity.status == DownloadStatus.paused) {
-                            downloadEntity.channel.receive()
-                            Log.d("DownloadRepositoryImpl", "Stopped")
-                        }
-                        Log.d("DownloadRepositoryImpl", "$requestIndex request started")
-                        val tempFileSegment = File.createTempFile(
-                            "${requestIndex}_${downloadEntity.fileEntity.filename}_",
-                            null,
-                            tempDirectory.toFile()
-                        )
-                        val start = requestIndex * LENGTH_PER_REQUEST
-                        val end = min(
-                            (requestIndex + 1) * LENGTH_PER_REQUEST - 1,
-                            downloadEntity.totalLength-1
-                        )
-                        val length = end-start+1
-                        NetworkUtil.downloadWithRange(
-                            urlString = downloadEntity.url,
-                            start = start,
-                            end = end,
-                            file = tempFileSegment
-                        )
-                        progressChannel.send(length)
+                    if(downloadEntity.status == DownloadStatus.paused) {
+                        downloadEntity.channel.receive()
+                        Log.d("DownloadRepositoryImpl", "Stopped")
                     }
-
-                }
-
-                repeat(totalRequest) { index ->
-                    val progress = progressChannel.receive()
+                    Log.d("DownloadRepositoryImpl", "$requestIndex request started")
+                    val tempFileSegment = File.createTempFile(
+                        "${requestIndex}_${downloadEntity.fileEntity.filename}_",
+                        null,
+                        tempDirectory.toFile()
+                    )
+                    val start = requestIndex * LENGTH_PER_REQUEST
+                    val end = min(
+                        (requestIndex + 1) * LENGTH_PER_REQUEST - 1,
+                        downloadEntity.totalLength-1
+                    )
+                    val length = end-start+1
+                    NetworkUtil.downloadWithRange(
+                        urlString = downloadEntity.url,
+                        start = start,
+                        end = end,
+                        file = tempFileSegment
+                    )
                     withContext(Dispatchers.Main) {
-                        updateProgress.accept(Pair(downloadEntity.downloadID, progress))
-                        if(index==totalRequest-1) {
-                            FileUtil.combineFiles(
-                                tempDirectory.toFile().listFiles()!!.toMutableList().sortedBy { it.name.split('_')[0].toInt()  },
-                                File(downloadEntity.fileEntity.temporaryImagePath)
-                            )
-                            tempDirectory.deleteIfExists()
-                            MainActivity.finishedEventSink!!.success(MainActivity.gson.toJson(downloadEntity))
-                        }
+                        updateProgress.accept(Pair(downloadEntity.downloadID, length))
                     }
                 }
+                withContext(Dispatchers.Main) {
+                     FileUtil.combineFiles(
+                            tempDirectory.toFile().listFiles()!!.toMutableList().sortedBy { it.name.split('_')[0].toInt()  },
+                            File(downloadEntity.fileEntity.temporaryImagePath)
+                        )
+                        tempDirectory.deleteIfExists()
+                        MainActivity.finishedEventSink!!.success(MainActivity.gson.toJson(downloadEntity))
+                }
+
 
                 log.info("file ${downloadEntity.fileEntity.temporaryImagePath} download complete")
 

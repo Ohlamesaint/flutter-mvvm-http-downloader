@@ -14,6 +14,7 @@ class MethodChannelResponse<T>(serviceResult: ServiceResult<T>) {
         is NoInternetError -> 10002
         is UnknownError -> 10003
         is JsonSerializationError -> 10004
+        is Exception -> 10003
         else -> 0
     }
     val errorMessage: String? = serviceResult.error?.message
