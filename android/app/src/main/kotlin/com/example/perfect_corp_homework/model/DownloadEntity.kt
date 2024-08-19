@@ -21,12 +21,12 @@ class DownloadEntity(
     var scope: CoroutineScope? = null,
     val fileEntity: FileEntity,
 ){
-//    val waiter: Waiter = Waiter()
 
     fun updateProgress (length: Int) {
         currentLength+=length
         if(currentLength==totalLength){
             status = DownloadStatus.done
+            channel.close()
         }
     }
 
@@ -50,10 +50,6 @@ class DownloadEntity(
         status = DownloadStatus.ongoing
         Log.d("DownloadEntity", "resumed")
     }
-//
-//    fun pauseDownload() {
-//        waiter.
-//    }
 
 }
 
