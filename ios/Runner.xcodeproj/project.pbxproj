@@ -12,6 +12,16 @@
 		389894481C4F552DF632D5F5 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 940391A06E235A280267DC2F /* Pods_Runner.framework */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
 		6E2D28D52C4E1DC600AD1C52 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6E2D28D42C4E1DC600AD1C52 /* GoogleService-Info.plist */; };
+		6EC2F3632C72E10300E48D68 /* FileUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC2F3622C72E10300E48D68 /* FileUtil.swift */; };
+		6EC2F3652C72E11900E48D68 /* NetworkUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC2F3642C72E11900E48D68 /* NetworkUtil.swift */; };
+		6EC2F3672C72F40200E48D68 /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC2F3662C72F40200E48D68 /* Error.swift */; };
+		6EC2F3692C72F52000E48D68 /* Constant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC2F3682C72F52000E48D68 /* Constant.swift */; };
+		6EC2F36B2C72F86300E48D68 /* ServiceResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC2F36A2C72F86300E48D68 /* ServiceResult.swift */; };
+		6EC2F36D2C73506E00E48D68 /* DownloadRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC2F36C2C73506E00E48D68 /* DownloadRepository.swift */; };
+		6EC2F36F2C7350A500E48D68 /* DownloadRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC2F36E2C7350A500E48D68 /* DownloadRepositoryImpl.swift */; };
+		6EC2F3712C7350C500E48D68 /* DownloadService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC2F3702C7350C500E48D68 /* DownloadService.swift */; };
+		6EC2F3732C7350D600E48D68 /* DownloadServiceImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC2F3722C7350D600E48D68 /* DownloadServiceImpl.swift */; };
+		6EC2F3752C7351E100E48D68 /* DownloadEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC2F3742C7351E100E48D68 /* DownloadEntity.swift */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
@@ -51,6 +61,16 @@
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
 		479CCA8F5548BDE63D4F6344 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
 		6E2D28D42C4E1DC600AD1C52 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
+		6EC2F3622C72E10300E48D68 /* FileUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileUtil.swift; sourceTree = "<group>"; };
+		6EC2F3642C72E11900E48D68 /* NetworkUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkUtil.swift; sourceTree = "<group>"; };
+		6EC2F3662C72F40200E48D68 /* Error.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Error.swift; sourceTree = "<group>"; };
+		6EC2F3682C72F52000E48D68 /* Constant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constant.swift; sourceTree = "<group>"; };
+		6EC2F36A2C72F86300E48D68 /* ServiceResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceResult.swift; sourceTree = "<group>"; };
+		6EC2F36C2C73506E00E48D68 /* DownloadRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadRepository.swift; sourceTree = "<group>"; };
+		6EC2F36E2C7350A500E48D68 /* DownloadRepositoryImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadRepositoryImpl.swift; sourceTree = "<group>"; };
+		6EC2F3702C7350C500E48D68 /* DownloadService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadService.swift; sourceTree = "<group>"; };
+		6EC2F3722C7350D600E48D68 /* DownloadServiceImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadServiceImpl.swift; sourceTree = "<group>"; };
+		6EC2F3742C7351E100E48D68 /* DownloadEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadEntity.swift; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		757FB388F27BA97CDA64618E /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
@@ -95,6 +115,57 @@
 				331C807B294A618700263BE5 /* RunnerTests.swift */,
 			);
 			path = RunnerTests;
+			sourceTree = "<group>";
+		};
+		6EC2F35C2C72E0BF00E48D68 /* model */ = {
+			isa = PBXGroup;
+			children = (
+				6EC2F3742C7351E100E48D68 /* DownloadEntity.swift */,
+			);
+			path = model;
+			sourceTree = "<group>";
+		};
+		6EC2F35D2C72E0CA00E48D68 /* error */ = {
+			isa = PBXGroup;
+			children = (
+				6EC2F3662C72F40200E48D68 /* Error.swift */,
+			);
+			path = error;
+			sourceTree = "<group>";
+		};
+		6EC2F35E2C72E0D300E48D68 /* api */ = {
+			isa = PBXGroup;
+			children = (
+				6EC2F36A2C72F86300E48D68 /* ServiceResult.swift */,
+			);
+			path = api;
+			sourceTree = "<group>";
+		};
+		6EC2F35F2C72E0D900E48D68 /* repository */ = {
+			isa = PBXGroup;
+			children = (
+				6EC2F36C2C73506E00E48D68 /* DownloadRepository.swift */,
+				6EC2F36E2C7350A500E48D68 /* DownloadRepositoryImpl.swift */,
+			);
+			path = repository;
+			sourceTree = "<group>";
+		};
+		6EC2F3602C72E0E600E48D68 /* service */ = {
+			isa = PBXGroup;
+			children = (
+				6EC2F3702C7350C500E48D68 /* DownloadService.swift */,
+				6EC2F3722C7350D600E48D68 /* DownloadServiceImpl.swift */,
+			);
+			path = service;
+			sourceTree = "<group>";
+		};
+		6EC2F3612C72E0EC00E48D68 /* util */ = {
+			isa = PBXGroup;
+			children = (
+				6EC2F3622C72E10300E48D68 /* FileUtil.swift */,
+				6EC2F3642C72E11900E48D68 /* NetworkUtil.swift */,
+			);
+			path = util;
 			sourceTree = "<group>";
 		};
 		80D389876A351F13C097CF89 /* Frameworks */ = {
@@ -154,6 +225,12 @@
 		97C146F01CF9000F007C117D /* Runner */ = {
 			isa = PBXGroup;
 			children = (
+				6EC2F3612C72E0EC00E48D68 /* util */,
+				6EC2F3602C72E0E600E48D68 /* service */,
+				6EC2F35F2C72E0D900E48D68 /* repository */,
+				6EC2F35E2C72E0D300E48D68 /* api */,
+				6EC2F35D2C72E0CA00E48D68 /* error */,
+				6EC2F35C2C72E0BF00E48D68 /* model */,
 				6E2D28D42C4E1DC600AD1C52 /* GoogleService-Info.plist */,
 				97C146FA1CF9000F007C117D /* Main.storyboard */,
 				97C146FD1CF9000F007C117D /* Assets.xcassets */,
@@ -163,6 +240,7 @@
 				1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */,
 				74858FAE1ED2DC5600515810 /* AppDelegate.swift */,
 				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
+				6EC2F3682C72F52000E48D68 /* Constant.swift */,
 			);
 			path = Runner;
 			sourceTree = "<group>";
@@ -398,8 +476,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6EC2F3652C72E11900E48D68 /* NetworkUtil.swift in Sources */,
+				6EC2F3632C72E10300E48D68 /* FileUtil.swift in Sources */,
+				6EC2F36B2C72F86300E48D68 /* ServiceResult.swift in Sources */,
+				6EC2F36D2C73506E00E48D68 /* DownloadRepository.swift in Sources */,
+				6EC2F3672C72F40200E48D68 /* Error.swift in Sources */,
+				6EC2F3732C7350D600E48D68 /* DownloadServiceImpl.swift in Sources */,
+				6EC2F3712C7350C500E48D68 /* DownloadService.swift in Sources */,
 				74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */,
+				6EC2F3752C7351E100E48D68 /* DownloadEntity.swift in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
+				6EC2F36F2C7350A500E48D68 /* DownloadRepositoryImpl.swift in Sources */,
+				6EC2F3692C72F52000E48D68 /* Constant.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
