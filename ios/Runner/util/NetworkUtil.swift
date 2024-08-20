@@ -9,49 +9,43 @@ import Foundation
 
 class NetworkUtil {
     private init() {}
-    static func getContentLength(from url: URL, completion: @escaping (Int64?) -> Void) {
+    static func getHeaders(from url: URL)  async throws -> HTTPURLResponse {
         var request = URLRequest(url: url)
         request.httpMethod = "HEAD"
         
-        let task = URLSession.shared.dataTask(with: request) {
-            _, response, error in
-            guard let httpResponse = response as? HTTPURLResponse else {
-                print("Download error: \(String(describing: error))")
-                completion(nil)
-                return
-            }
-            if #available(iOS 13, *) {
-                completion(Int64(httpResponse.value(forHTTPHeaderField: "Content-Length") ?? "0"))
-            } else {
-                completion(Int64(httpResponse.value(forKey: "Content-Length") as? String ?? "0"))
-            }
-        }
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard (response as? HTTPURLResponse)?.statusCode == 200 else {throw AppError.BadRequestError}
+        
+        return (response as! HTTPURLResponse)
+//
+//        let task = URLSession.shared.dataTask(with: request) {
+//            _, response, error in
+//            guard let httpResponse = response as? HTTPURLResponse else {
+//                print("Download error: \(String(describing: error))")
+//                completion(nil)
+//                return
+//            }
+//            completion(Int64(httpResponse.value(forHTTPHeaderField: "Content-Length") ?? "0"))
     }
     
-    static func downloadWithRange(source url: URL, from start: Int, to end: Int, destination tempFile: URL) {
+    static func downloadWithRange(source url: URL, from start: Int, to end: Int, destination tempFile: URL) async {
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.addValue("bytes=\(start)-\(end)", forHTTPHeaderField: "Range")
         
-        let task = URLSession.shared.dataTask(with: request) {
-            data, response, error in
-            guard let data = data, error == nil else {
-                print("Download error: \(String(describing: error))")
-                return
-            }
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard(response as? HTTPURLResponse)?.statusCode == 200 else {throw AppError.BadRequestError}
             
-            let fileHandle: FileHandle?
+            FileUtil.storeByteStreamToFile(from: data, to: tempFile)
+
+            
+        } catch {
+            
         }
+        
     }
     
-}
-
-
-protocol Base {
     
-}
-
-class Car {
-    var proto: Base?
     
 }

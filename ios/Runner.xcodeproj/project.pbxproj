@@ -22,6 +22,8 @@
 		6EC2F3712C7350C500E48D68 /* DownloadService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC2F3702C7350C500E48D68 /* DownloadService.swift */; };
 		6EC2F3732C7350D600E48D68 /* DownloadServiceImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC2F3722C7350D600E48D68 /* DownloadServiceImpl.swift */; };
 		6EC2F3752C7351E100E48D68 /* DownloadEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC2F3742C7351E100E48D68 /* DownloadEntity.swift */; };
+		6EC2F3772C74256300E48D68 /* FileEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC2F3762C74256300E48D68 /* FileEntity.swift */; };
+		6EC2F3792C7493A000E48D68 /* MethodChannelResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EC2F3782C7493A000E48D68 /* MethodChannelResponse.swift */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
@@ -71,6 +73,8 @@
 		6EC2F3702C7350C500E48D68 /* DownloadService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadService.swift; sourceTree = "<group>"; };
 		6EC2F3722C7350D600E48D68 /* DownloadServiceImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadServiceImpl.swift; sourceTree = "<group>"; };
 		6EC2F3742C7351E100E48D68 /* DownloadEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadEntity.swift; sourceTree = "<group>"; };
+		6EC2F3762C74256300E48D68 /* FileEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileEntity.swift; sourceTree = "<group>"; };
+		6EC2F3782C7493A000E48D68 /* MethodChannelResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MethodChannelResponse.swift; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		757FB388F27BA97CDA64618E /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
@@ -121,6 +125,7 @@
 			isa = PBXGroup;
 			children = (
 				6EC2F3742C7351E100E48D68 /* DownloadEntity.swift */,
+				6EC2F3762C74256300E48D68 /* FileEntity.swift */,
 			);
 			path = model;
 			sourceTree = "<group>";
@@ -137,6 +142,7 @@
 			isa = PBXGroup;
 			children = (
 				6EC2F36A2C72F86300E48D68 /* ServiceResult.swift */,
+				6EC2F3782C7493A000E48D68 /* MethodChannelResponse.swift */,
 			);
 			path = api;
 			sourceTree = "<group>";
@@ -479,8 +485,10 @@
 				6EC2F3652C72E11900E48D68 /* NetworkUtil.swift in Sources */,
 				6EC2F3632C72E10300E48D68 /* FileUtil.swift in Sources */,
 				6EC2F36B2C72F86300E48D68 /* ServiceResult.swift in Sources */,
+				6EC2F3792C7493A000E48D68 /* MethodChannelResponse.swift in Sources */,
 				6EC2F36D2C73506E00E48D68 /* DownloadRepository.swift in Sources */,
 				6EC2F3672C72F40200E48D68 /* Error.swift in Sources */,
+				6EC2F3772C74256300E48D68 /* FileEntity.swift in Sources */,
 				6EC2F3732C7350D600E48D68 /* DownloadServiceImpl.swift in Sources */,
 				6EC2F3712C7350C500E48D68 /* DownloadService.swift in Sources */,
 				74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */,
@@ -586,6 +594,7 @@
 				ENABLE_BITCODE = NO;
 				FLUTTER_BUILD_MODE = release;
 				INFOPLIST_FILE = Runner/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -773,6 +782,7 @@
 				ENABLE_BITCODE = NO;
 				FLUTTER_BUILD_MODE = debug;
 				INFOPLIST_FILE = Runner/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -800,6 +810,7 @@
 				ENABLE_BITCODE = NO;
 				FLUTTER_BUILD_MODE = release;
 				INFOPLIST_FILE = Runner/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

@@ -11,10 +11,10 @@ import Foundation
 class ServiceResult<T> {
     
     let isSuccess: Bool
-    let error: Error?
+    let error: AppError?
     let data: T?
     
-    init(error: Error) {
+    init(error: AppError) {
         self.isSuccess = false
         self.error = error
         self.data = nil

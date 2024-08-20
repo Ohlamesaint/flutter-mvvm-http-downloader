@@ -8,7 +8,7 @@
 import Foundation
 
 protocol DownloadRepository {
-    func getFileLength()
+    func configureDownload(from url: String) async throws -> DownloadEntity
     
-    func fetchImageWithUrl()
+    func fetchImage(baseOn downloadEntity: DownloadEntity) throws
 }
