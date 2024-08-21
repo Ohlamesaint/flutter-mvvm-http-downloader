@@ -28,10 +28,14 @@ class NetworkUtil {
 //            completion(Int64(httpResponse.value(forHTTPHeaderField: "Content-Length") ?? "0"))
     }
     
+    
+    
     static func downloadWithRange(source url: URL, from start: Int, to end: Int, destination tempFile: URL) async {
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.addValue("bytes=\(start)-\(end)", forHTTPHeaderField: "Range")
+        
+        
         
         do {
             let (data, response) = try await URLSession.shared.data(for: request)

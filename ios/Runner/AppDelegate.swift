@@ -28,26 +28,33 @@ import UIKit
       finishEventChannel.setStreamHandler(FinishStreamHandler())
       
       let taskQueue = controller.binaryMessenger.makeBackgroundTaskQueue?()
+      let jsonEncoder = JSONEncoder()
 
       methodChannel.setMethodCallHandler({
         [weak self] (call: FlutterMethodCall, result: FlutterResult) -> Void in
             // This method is invoked on the UI thread.
+          
         switch(call.method) {
         case "createDownload":
-            NSLog("createDownload")
+            let urlString: String = call.arguments as! String
+            let result = await downloadService.createDownload(urlString: urlString)
+            let response = MethodChannelResponse(serviceResult: result)
+            let jsonData = try jsonEncoder.encode(response)
+            
+            result("createDownload")
         case "resumeDownload":
-            NSLog("resumeDownload")
+            result("resumeDownload")
         case "cancelDownload":
-            NSLog("cancelDownload")
+            result("cancelDownload")
         case "pauseDownload":
-            NSLog("pauseDownload")
+            result("pauseDownload")
         case "manualPauseDownload":
-            NSLog("manualPauseDownload")
+            result("manualPauseDownload")
         default:
             NSLog(call.method)
             result(FlutterMethodNotImplemented)
-            return
         }
+          
     })
 
     GeneratedPluginRegistrant.register(with: self)
@@ -58,7 +65,7 @@ import UIKit
 class ProgressStreamHandler: NSObject, FlutterStreamHandler {
     
     public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
-        
+        NSLog("ProgressStreamHandler Configured")
         AppDelegate.progressEventSink = events
         return nil
     }
@@ -70,7 +77,7 @@ class ProgressStreamHandler: NSObject, FlutterStreamHandler {
 
 class FinishStreamHandler: NSObject, FlutterStreamHandler {
     public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
-        
+        NSLog("FinishStreamHandler Configured")
         AppDelegate.finishEventSink = events
         return nil
     }

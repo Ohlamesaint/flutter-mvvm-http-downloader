@@ -19,7 +19,6 @@ class DownloadRepositoryNativeImpl implements DownloadRepository {
   @override
   Future<ServiceResult<int>> createDownload({required String urlString}) async {
     try {
-      log("in createDownload");
       Map<String, dynamic> methodChannelRawResponse =
           await _methodChannel.invokeMethod("createDownload", {
         "urlString": urlString,
