@@ -9,8 +9,8 @@ import Foundation
 
 
 enum AppError: Error {
-    case BadRequestError(String)
-    case UnsupportedMediaTypeError(String)
+    case BadRequestError
+    case UnsupportedMediaTypeError
     case UnknownError(String)
     
     var message: String {
