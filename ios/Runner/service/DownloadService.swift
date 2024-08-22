@@ -10,7 +10,7 @@ import Foundation
 protocol DownloadService{
     
     func createDownload(urlString: String) async -> ServiceResult<Int> 
-    func startDownload(downloadEntity: DownloadEntity)
+    func startDownload(downloadEntity: DownloadEntity) async
     func resumeDownload(downloadID: String) -> ServiceResult<Int>
     func cancelDownload(downloadID: String) -> ServiceResult<Int>
     func pauseDownload(downloadID: String) -> ServiceResult<Int>

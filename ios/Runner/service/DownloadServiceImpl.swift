@@ -10,7 +10,7 @@ import Foundation
 class DownloadServiceImpl: DownloadService {
     
     
-    private var id2DownloadEntity = Dictionary<String, DownloadEntity>()
+    private var id2DownloadEntity: [String: DownloadEntity] = [:]
     private let downloadRepository: DownloadRepository
     
     init(downloadRepository: DownloadRepository) {
@@ -22,9 +22,14 @@ class DownloadServiceImpl: DownloadService {
             let downloadEntity = try await downloadRepository.configureDownload(from: urlString)
             id2DownloadEntity[downloadEntity.downloadID] = downloadEntity
             
-            // TODO: add progress
             
-            startDownload(downloadEntity: downloadEntity)
+            // TODO: add progress
+            NSLog("1")
+            updateProgress()
+            NSLog("2")
+            await startDownload(downloadEntity: downloadEntity)
+            NSLog("3")
+            updateProgress()
             
             return ServiceResult<Int>(data: _calculateOngoingDownload())
         } catch {
@@ -33,13 +38,17 @@ class DownloadServiceImpl: DownloadService {
         
     }
     
+    func updateProgress() {
+        AppDelegate.progressEventSink!(id2DownloadEntity.values)
+    }
+    
     private func _calculateOngoingDownload() -> Int {
         return id2DownloadEntity.values.filter{ downloadEntity in
             downloadEntity.status==DownloadStatus.ongoing
         }.count
     }
     
-    func startDownload(downloadEntity: DownloadEntity) {
+    func startDownload(downloadEntity: DownloadEntity) async {
         do {
             try downloadRepository.fetchImage(baseOn: downloadEntity)
             downloadEntity.status = DownloadStatus.ongoing
@@ -62,6 +71,8 @@ class DownloadServiceImpl: DownloadService {
         let target = id2DownloadEntity[downloadID]
         target!.cancelDownload()
         // TODO: add progress
+        
+        // remove all files
         return ServiceResult<Int>(data: _calculateOngoingDownload())
         
     }

@@ -33,16 +33,29 @@ import UIKit
       methodChannel.setMethodCallHandler({
         [weak self] (call: FlutterMethodCall, result: FlutterResult) -> Void in
             // This method is invoked on the UI thread.
-          
+          guard let args = call.arguments as? [String: Any] else {
+              result(FlutterError.init(code: "errorSetDebug", message: "data or format error", details: nil))
+              return
+          }
         switch(call.method) {
         case "createDownload":
-            let urlString: String = call.arguments as! String
-            let result = await downloadService.createDownload(urlString: urlString)
-            let response = MethodChannelResponse(serviceResult: result)
-            let jsonData = try jsonEncoder.encode(response)
+            if let urlString = args["urlString"] as? String {
+                Task {
+                    async let jsonResponse = {
+                        let serviceResult: ServiceResult<Int> = await self!.downloadService.createDownload(urlString: urlString)
+                        let response = MethodChannelResponse(serviceResult: serviceResult)
+                        return try jsonEncoder.encode(response)
+                    }
+                }
+                
+                result(await jsonResponse)
+            } else {
+                result("")
+            }
             
-            result("createDownload")
+                    
         case "resumeDownload":
+            
             result("resumeDownload")
         case "cancelDownload":
             result("cancelDownload")

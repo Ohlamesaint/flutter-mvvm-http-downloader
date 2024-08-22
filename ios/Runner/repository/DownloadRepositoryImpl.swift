@@ -41,44 +41,38 @@ class DownloadRepositoryImpl: DownloadRepository {
     }
     
     func fetchImage(baseOn downloadEntity: DownloadEntity) throws {
-        let totalRequest = downloadEntity.totalLength / LENGTH_PER_REQUEST
+        let totalRequest = (downloadEntity.totalLength + LENGTH_PER_REQUEST - 1) / LENGTH_PER_REQUEST
         
         let dirURL = try FileUtil.createTempDirectory(withName: downloadEntity.fileEntity.filename)
         
-        let queue = DispatchQueue(label: downloadEntity.downloadID)
-        queue.suspend()
         
-        let group = DispatchGroup()
-        
-        
-        (0 ..< totalRequest).forEach { current in
-            let fileSegmentName = "\(downloadEntity.fileEntity.filename)_\(current)"
-            let tempFileSegment = FileUtil.createTempFile(withName: fileSegmentName, andType: "tmp")
-            
-            let start = current * LENGTH_PER_REQUEST
-            let end = Swift.min((current+1)*LENGTH_PER_REQUEST-1, downloadEntity.totalLength-1)
-            let length = end-start+1
-            
-            queue.async{
-                group.enter()
-                Task{
-                    await NetworkUtil.downloadWithRange(source: URL(string: downloadEntity.url)!, from: start, to: end, destination: tempFileSegment)
-                    // notify new progress
-                    downloadEntity.currentLength+=length
-                    print("\(downloadEntity.currentLength)/\(downloadEntity.totalLength)")
+        let task = Task {
+            try await withThrowingTaskGroup(of: Int.self) { group in
+                downloadEntity.groupTask = group
+                for index in (0..<totalRequest) {
+                    group.addTask {
+                        let fileSegmentName = "\(downloadEntity.fileEntity.filename)_\(index)"
+                        let tempFileSegment = FileUtil.createTempFile(withName: fileSegmentName, andType: "tmp")
+                        let start = index * self.LENGTH_PER_REQUEST
+                        let end = Swift.min((index+1)*self.LENGTH_PER_REQUEST-1, downloadEntity.totalLength-1)
+                        let length = end-start+1
+                        await NetworkUtil.downloadWithRange(source: URL(string: downloadEntity.url)!, from: start, to: end, destination: tempFileSegment)
+                        return length
+                    }
                 }
-                group.leave()
+                for try await len in group {
+                    downloadEntity.updateProgress(length: len)
+                    
+                    // notify new progress
+                }
+                // combine file segments
+                
+                
+                await AppDelegate.finishEventSink!(downloadEntity)
             }
         }
         
-        group.notify(queue: queue) {
-            print("Done")
-            downloadEntity.status = DownloadStatus.done
-            // notify download finished
-        }
         
-        downloadEntity.dispatchQueue = queue
-        downloadEntity.dispatchGroup = group
         
     }
     

@@ -8,7 +8,7 @@
 import Foundation
 
 
-class MethodChannelResponse<T>: Encodable{
+class MethodChannelResponse<T: Codable>: Encodable{
     
     let statusCode: Int
     let errorMessage: String?

@@ -15,8 +15,8 @@ class DownloadEntity {
     var currentLength = 0
     let fileEntity: FileEntity
     var status: DownloadStatus = DownloadStatus.pending
-    var dispatchGroup: DispatchGroup? = nil
-    var dispatchQueue: DispatchQueue? = nil
+    var groupTask: ThrowingTaskGroup<Int, any Error>? = nil
+
     
     
     init(downloadID: String, url: String, totalLength: Int, fileEntity: FileEntity) {
@@ -33,13 +33,11 @@ class DownloadEntity {
     
     func pauseDownload() {
         status = DownloadStatus.paused
-        dispatchQueue!.suspend()
     }
     
     func cancelDownload() {
         status = DownloadStatus.canceled
-        
-        
+        groupTask!.cancelAll()
     }
     
     func manualPausedDownload() {
@@ -48,7 +46,6 @@ class DownloadEntity {
     
     func resumeDownload() {
         status = DownloadStatus.ongoing
-        dispatchQueue!.resume()
     }
     
 }
