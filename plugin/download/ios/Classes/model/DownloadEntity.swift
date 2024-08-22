@@ -51,6 +51,28 @@ class DownloadEntity {
 }
 
 
-enum DownloadStatus {
+enum DownloadStatus: Encodable {
     case pending, paused, ongoing, manualPaused, canceled, failed, done
+}
+
+
+extension DownloadEntity: Encodable {
+    enum CodingKeys: String, CodingKey {
+        case downloadID
+        case url
+        case totalLength
+        case currentLength
+        case status
+        case fileEntity
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(downloadID, forKey: .downloadID)
+        try container.encode(url, forKey: .url)
+        try container.encode(totalLength, forKey: .totalLength)
+        try container.encode(currentLength, forKey: .currentLength)
+        try container.encode(status, forKey: .status)
+        try container.encode(fileEntity, forKey: .fileEntity)
+    }
 }

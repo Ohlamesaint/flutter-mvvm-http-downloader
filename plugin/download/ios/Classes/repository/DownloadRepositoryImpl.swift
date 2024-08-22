@@ -9,7 +9,7 @@ import Foundation
 
 class DownloadRepositoryImpl: DownloadRepository {
     
-    private let LENGTH_PER_REQUEST = 500_000
+    private let LENGTH_PER_REQUEST = 500000
     
     func configureDownload(from urlString: String) async throws -> DownloadEntity {
         
@@ -27,6 +27,8 @@ class DownloadRepositoryImpl: DownloadRepository {
         let contentLength = contentLengthInfo == nil ? 0 : Int(contentLengthInfo!)
         let acceptRange = acceptRangesInfo == nil ? false :  acceptRangesInfo!=="bytes"
         
+        // TODO: use stream for acceptRange
+        
         let filename = FileUtil.generateFileName()
         let fileType = url.pathExtension
         let tempDownloadFileString = FileUtil.createTempFile(withName: filename, andType: fileType)
@@ -40,10 +42,9 @@ class DownloadRepositoryImpl: DownloadRepository {
         
     }
     
-    func fetchImage(baseOn downloadEntity: DownloadEntity) throws {
+    func fetchImage(baseOn downloadEntity: DownloadEntity, updateProgress: @escaping () async -> Void ) throws {
         let totalRequest = (downloadEntity.totalLength + LENGTH_PER_REQUEST - 1) / LENGTH_PER_REQUEST
         
-        let dirURL = try FileUtil.createTempDirectory(withName: downloadEntity.fileEntity.filename)
         
         
         let task = Task {
@@ -64,16 +65,21 @@ class DownloadRepositoryImpl: DownloadRepository {
                 for try await (tempFileURL, len) in group {
                     downloadEntity.updateProgress(length: len)
                     fileSegments.append(tempFileURL)
+                    Task.detached{@MainActor in await updateProgress()}
                     // notify new progress
                 }
                 // combine file segments
-                
                 try await FileUtil.combineFiles(fileSegments: fileSegments, to: URL(string: downloadEntity.fileEntity.temporaryImagePath)!)
-                await AppDelegate.finishEventSink!(downloadEntity)
+                
+                try await MainActor.run{
+                    downloadEntity.status = DownloadStatus.done
+                    DownloadPlugin.finishEventSink!(try JSONSerialization.jsonObject(with: try JSONEncoder().encode(downloadEntity)))
+                    Task.detached{@MainActor in await updateProgress()}
+                }
+                
             }
         }
-        
-        
+            
         
     }
     

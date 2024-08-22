@@ -12,6 +12,7 @@ import UIKit
     
     static var progressEventSink: FlutterEventSink? = nil
     static var finishEventSink: FlutterEventSink? = nil
+
     
   override func application(
     _ application: UIApplication,
@@ -29,28 +30,30 @@ import UIKit
       
       let taskQueue = controller.binaryMessenger.makeBackgroundTaskQueue?()
       let jsonEncoder = JSONEncoder()
+      
+      
 
       methodChannel.setMethodCallHandler({
-        [weak self] (call: FlutterMethodCall, result: FlutterResult) -> Void in
+        [weak self] (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
             // This method is invoked on the UI thread.
           guard let args = call.arguments as? [String: Any] else {
               result(FlutterError.init(code: "errorSetDebug", message: "data or format error", details: nil))
               return
           }
+          
+          
         switch(call.method) {
         case "createDownload":
             if let urlString = args["urlString"] as? String {
                 Task {
-                    async let jsonResponse = {
-                        let serviceResult: ServiceResult<Int> = await self!.downloadService.createDownload(urlString: urlString)
-                        let response = MethodChannelResponse(serviceResult: serviceResult)
-                        return try jsonEncoder.encode(response)
-                    }
+                    NSLog("Start")
+                    let serviceResult: ServiceResult<Int> = await self!.downloadService.createDownload(urlString: urlString)
+//                    let response = MethodChannelResponse(serviceResult: serviceResult)
+                    result("GOOD")
+//                    result(String(data: try jsonEncoder.encode(response), encoding: .utf8) )
                 }
-                
-                result(await jsonResponse)
             } else {
-                result("")
+                result(FlutterError.init(code: "errorSetDebug", message: "data or format error", details: nil))
             }
             
                     

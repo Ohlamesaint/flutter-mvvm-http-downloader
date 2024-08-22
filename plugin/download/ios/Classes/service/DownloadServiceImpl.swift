@@ -23,13 +23,9 @@ class DownloadServiceImpl: DownloadService {
             id2DownloadEntity[downloadEntity.downloadID] = downloadEntity
             
             
-            // TODO: add progress
-            print("1")
-            updateProgress()
-            print("2")
+            await updateProgress()
             await startDownload(downloadEntity: downloadEntity)
-            print("3")
-            updateProgress()
+            await updateProgress()
             
             return ServiceResult<Int>(data: _calculateOngoingDownload())
         } catch {
@@ -38,8 +34,15 @@ class DownloadServiceImpl: DownloadService {
         
     }
     
-    func updateProgress() {
-        AppDelegate.progressEventSink!(id2DownloadEntity.values)
+    func updateProgress() async {
+        do {
+            try await MainActor.run {
+                DownloadPlugin.progressEventSink!(try JSONSerialization.jsonObject(with: try JSONEncoder().encode(Array(id2DownloadEntity.values))))
+            }
+            
+        } catch {
+            
+        }
     }
     
     private func _calculateOngoingDownload() -> Int {
@@ -50,7 +53,7 @@ class DownloadServiceImpl: DownloadService {
     
     func startDownload(downloadEntity: DownloadEntity) async {
         do {
-            try downloadRepository.fetchImage(baseOn: downloadEntity)
+            try downloadRepository.fetchImage(baseOn: downloadEntity, updateProgress: updateProgress)
             downloadEntity.status = DownloadStatus.ongoing
             // TODO: add progress
         } catch {

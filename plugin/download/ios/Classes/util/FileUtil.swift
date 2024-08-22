@@ -11,7 +11,7 @@ class FileUtil {
     private init() {}
 
     
-    static func combineFiles(fileSegments: [URL], to destination: URL, chunkSize: Int = 1000000) async throws {
+    static func combineFiles(fileSegments: [URL], to destination: URL, chunkSize: Int = 500000) async throws {
         FileManager.default.createFile(atPath: destination.path, contents: nil)
         
         
@@ -25,17 +25,20 @@ class FileUtil {
         }
         
         for fileSegment in fileSegments {
-            let fileData = try Data(contentsOf: fileSegment)
-            
-            writer.seekToEndOfFile()
-            try writer.write(contentsOf: fileData)
-            try FileManager.default.removeItem(at: fileSegment)
+            print("combineFile: \(fileSegment.dataRepresentation.count)")
+            try writer.write(contentsOf: fileSegment.dataRepresentation)
+//            try FileManager.default.removeItem(at: fileSegment)
         }
     }
     
     static func storeByteStreamToFile(from input: Data, to file: URL) {
         do {
-            try input.write(to: file)
+            
+            let fileHandle = try FileHandle(forWritingTo: file)
+            try fileHandle.seekToEnd()
+            try fileHandle.write(contentsOf: input)
+            try fileHandle.close()
+            print("\(file.absoluteString) ++ \(file.dataRepresentation.count) with \(input.count)")
         } catch {
             print(error)
         }
@@ -54,10 +57,9 @@ class FileUtil {
     
     static func createTempFile(withName filename: String, andType filetype: String) -> URL {
         let tempDirectory = FileManager.default.temporaryDirectory
-        
         let fileURL = tempDirectory.appendingPathComponent(filename+"."+filetype)
         
-        FileManager.default.createFile(atPath: fileURL.absoluteString, contents: nil, attributes: nil)
+        FileManager.default.createFile(atPath: fileURL.path, contents: nil, attributes: nil)
         
         return fileURL
         

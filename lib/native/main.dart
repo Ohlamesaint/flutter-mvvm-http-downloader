@@ -16,6 +16,7 @@ import 'package:perfect_corp_homework/native/features/download/presentation/bloc
 import 'package:perfect_corp_homework/native/features/download/presentation/bloc/url_input/url_input_bloc.dart';
 import 'package:perfect_corp_homework/native/features/download/presentation/widget/pages/download_view.dart';
 import 'package:perfect_corp_homework/native/features/image_presentation/presentation/widget/pages/history_view.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 void _createPersistDir() async {
   Directory thumbnailDir = Directory(
