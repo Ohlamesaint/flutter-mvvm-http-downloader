@@ -39,18 +39,24 @@ public class DownloadPlugin: NSObject, FlutterPlugin {
         
       switch(call.method) {
       case "createDownload":
-          if let urlString = args["urlString"] as? String {
-              Task {
-                  NSLog("Start")
-                  let serviceResult: ServiceResult<Int> = await self.downloadService.createDownload(urlString: urlString)
-                  let response = MethodChannelResponse(serviceResult: serviceResult)
-//                  result(response)
-                  
-                    result(String(data: try JSONEncoder().encode(response), encoding: .utf8) )
-              }
-          } else {
+          
+          guard let urlString = args["urlString"] as? String else {
               result(FlutterError.init(code: "errorSetDebug", message: "data or format error", details: nil))
+              return
           }
+          guard let isConcurrent = args["isConcurrent"] as? Bool else {
+              result(FlutterError.init(code: "errorSetDebug", message: "data or format error", details: nil))
+              return
+          }
+          
+          Task {
+              NSLog("Start")
+              let serviceResult: ServiceResult<Int> = await self.downloadService.createDownload(urlString: urlString, isConcurrent:  isConcurrent)
+              let response = MethodChannelResponse(serviceResult: serviceResult)
+              result(String(data: try JSONEncoder().encode(response), encoding: .utf8) )
+          }
+              
+              
           
                   
       case "resumeDownload":

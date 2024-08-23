@@ -41,7 +41,8 @@ class _MyAppState extends State<MyApp> {
 
     try {
       final data = await _downloadPlugin.createDownload(
-          urlString: "https://photock.jp/photo/download/photo0000-5950.jpg");
+          urlString: "https://photock.jp/photo/download/photo0000-5950.jpg",
+          isConcurrent: false);
       log(">>>");
       log(data.toString());
 

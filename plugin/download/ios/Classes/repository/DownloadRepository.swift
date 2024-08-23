@@ -8,7 +8,7 @@
 import Foundation
 
 protocol DownloadRepository {
-    func configureDownload(from url: String) async throws -> DownloadEntity
+    func configureDownload(from url: String, isConcurrent: Bool) async throws -> DownloadEntity
     
     func fetchImage(baseOn downloadEntity: DownloadEntity, updateProgress: @escaping () async -> Void) throws
 }

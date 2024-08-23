@@ -24,10 +24,10 @@ class MethodChannelDownload extends DownloadPlatform {
   }
 
   @override
-  Future<String> createDownload({required String urlString}) async {
-    return await _methodChannel.invokeMethod("createDownload", {
-      "urlString": urlString,
-    });
+  Future<String> createDownload(
+      {required String urlString, required bool isConcurrent}) async {
+    return await _methodChannel.invokeMethod("createDownload",
+        {"urlString": urlString, "isConcurrent": isConcurrent});
   }
 
   @override

@@ -17,18 +17,17 @@ class NetworkUtil {
         guard (response as? HTTPURLResponse)?.statusCode == 200 else {throw AppError.BadRequestError}
         
         return (response as! HTTPURLResponse)
-//
-//        let task = URLSession.shared.dataTask(with: request) {
-//            _, response, error in
-//            guard let httpResponse = response as? HTTPURLResponse else {
-//                print("Download error: \(String(describing: error))")
-//                completion(nil)
-//                return
-//            }
-//            completion(Int64(httpResponse.value(forHTTPHeaderField: "Content-Length") ?? "0"))
     }
     
-    
+    static func downloadWithRangeWithCompletion(source url: URL, from start: Int, to end: Int, destination tempFile: URL, completion handler : @escaping (Data?, URLResponse?, Error?) -> Void)->URLSessionDataTask {
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.addValue("bytes=\(start)-\(end)", forHTTPHeaderField: "Range")
+        
+        let task = URLSession.shared.dataTask(with: request, completionHandler: handler)
+        
+        return task
+    }
     
     static func downloadWithRange(source url: URL, from start: Int, to end: Int, destination tempFile: URL) async {
         var request = URLRequest(url: url)
@@ -39,10 +38,8 @@ class NetworkUtil {
         
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
-            print("response: \((response as? HTTPURLResponse)?.statusCode)")
             guard(response as? HTTPURLResponse)?.statusCode == 206 else {throw AppError.BadRequestError}
             
-            print("fine! \(data.count)")
             FileUtil.storeByteStreamToFile(from: data, to: tempFile)
 
             

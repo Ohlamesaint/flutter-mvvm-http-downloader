@@ -14,16 +14,18 @@ class DownloadEntity {
     let totalLength: Int
     var currentLength = 0
     let fileEntity: FileEntity
+    let isConcurrent: Bool
     var status: DownloadStatus = DownloadStatus.pending
     var groupTask: ThrowingTaskGroup<(URL, Int), any Error>? = nil
 
     
     
-    init(downloadID: String, url: String, totalLength: Int, fileEntity: FileEntity) {
+    init(downloadID: String, url: String, totalLength: Int, fileEntity: FileEntity, isConcurrent: Bool) {
         self.downloadID = downloadID
         self.url = url
         self.totalLength = totalLength
         self.fileEntity = fileEntity
+        self.isConcurrent = isConcurrent
     }
     
     func updateProgress(length: Int) {
@@ -64,6 +66,7 @@ extension DownloadEntity: Encodable {
         case currentLength
         case status
         case fileEntity
+        case isConcurrent
     }
     
     public func encode(to encoder: Encoder) throws {
@@ -74,5 +77,6 @@ extension DownloadEntity: Encodable {
         try container.encode(currentLength, forKey: .currentLength)
         try container.encode(status, forKey: .status)
         try container.encode(fileEntity, forKey: .fileEntity)
+        try container.encode(isConcurrent, forKey: .isConcurrent)
     }
 }

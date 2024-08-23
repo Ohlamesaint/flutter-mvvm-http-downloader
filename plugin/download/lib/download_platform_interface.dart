@@ -28,7 +28,8 @@ abstract class DownloadPlatform extends PlatformInterface {
   }
 
   Stream getDownloadListStream();
-  Future<String> createDownload({required String urlString});
+  Future<String> createDownload(
+      {required String urlString, required bool isConcurrent});
   Future<String> pauseDownload({required String downloadID});
   Future<String> resumeDownload({required String downloadID});
   Future<String> cancelDownload({required String downloadID});

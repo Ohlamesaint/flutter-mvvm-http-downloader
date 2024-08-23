@@ -5,8 +5,10 @@ class Download {
     return DownloadPlatform.instance.getPlatformVersion();
   }
 
-  Future<String> createDownload({required String urlString}) async {
-    return await DownloadPlatform.instance.createDownload(urlString: urlString);
+  Future<String> createDownload(
+      {required String urlString, required bool isConcurrent}) async {
+    return await DownloadPlatform.instance
+        .createDownload(urlString: urlString, isConcurrent: isConcurrent);
   }
 
   Future<String> cancelDownload({required String downloadID}) async {

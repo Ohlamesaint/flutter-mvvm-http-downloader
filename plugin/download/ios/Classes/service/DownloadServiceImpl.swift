@@ -17,9 +17,9 @@ class DownloadServiceImpl: DownloadService {
         self.downloadRepository = downloadRepository
     }
     
-    func createDownload(urlString: String) async -> ServiceResult<Int> {
+    func createDownload(urlString: String, isConcurrent: Bool) async -> ServiceResult<Int> {
         do {
-            let downloadEntity = try await downloadRepository.configureDownload(from: urlString)
+            let downloadEntity = try await downloadRepository.configureDownload(from: urlString, isConcurrent: isConcurrent)
             id2DownloadEntity[downloadEntity.downloadID] = downloadEntity
             
             
