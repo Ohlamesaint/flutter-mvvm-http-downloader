@@ -47,13 +47,15 @@ class DownloadRepositoryImpl: DownloadRepository {
         
         
         
+        
+        //
         let task = Task {
             try await withThrowingTaskGroup(of: (URL, Int).self) { group in
                 downloadEntity.groupTask = group
                 var fileSegments: [URL] = []
                 for index in (0..<totalRequest) {
                     group.addTask {
-                        let fileSegmentName = "\(downloadEntity.fileEntity.filename)_\(index)"
+                        let fileSegmentName = "\(index)_\(downloadEntity.fileEntity.filename)"
                         let tempFileSegment = FileUtil.createTempFile(withName: fileSegmentName, andType: "tmp")
                         let start = index * self.LENGTH_PER_REQUEST
                         let end = Swift.min((index+1)*self.LENGTH_PER_REQUEST-1, downloadEntity.totalLength-1)
@@ -69,8 +71,11 @@ class DownloadRepositoryImpl: DownloadRepository {
                     // notify new progress
                 }
                 // combine file segments
-                try await FileUtil.combineFiles(fileSegments: fileSegments, to: URL(string: downloadEntity.fileEntity.temporaryImagePath)!)
-                
+                try await FileUtil.combineFiles(fileSegments: fileSegments.sorted(by: {f1, f2 in
+                    return Int(f1.lastPathComponent.split(separator: "_")[0])! <
+                    Int(f2.lastPathComponent.split(separator: "_")[0])!
+                }), to: URL(string: downloadEntity.fileEntity.temporaryImagePath)!)
+        
                 try await MainActor.run{
                     downloadEntity.status = DownloadStatus.done
                     DownloadPlugin.finishEventSink!(try JSONSerialization.jsonObject(with: try JSONEncoder().encode(downloadEntity)))

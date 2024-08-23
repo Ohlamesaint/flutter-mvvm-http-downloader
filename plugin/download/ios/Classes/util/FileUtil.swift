@@ -16,6 +16,7 @@ class FileUtil {
         
         
         let writer = try FileHandle(forWritingTo: destination)
+        
         defer {
             do{
                 try writer.close()
@@ -25,9 +26,10 @@ class FileUtil {
         }
         
         for fileSegment in fileSegments {
-            print("combineFile: \(fileSegment.dataRepresentation.count)")
-            try writer.write(contentsOf: fileSegment.dataRepresentation)
-//            try FileManager.default.removeItem(at: fileSegment)
+            print("combineFile: \(fileSegment.lastPathComponent)), currentLength: \(try writer.offset())")
+            try writer.seekToEnd()
+            try writer.write(contentsOf: try Data(contentsOf: fileSegment.absoluteURL))
+            try FileManager.default.removeItem(at: fileSegment)
         }
     }
     
