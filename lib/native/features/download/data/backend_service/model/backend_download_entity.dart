@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:perfect_corp_homework/native/features/download/data/backend_service/model/backend_file_entity.dart';
-import 'package:perfect_corp_homework/native/features/download/domain/entity/file_entity.dart';
 
 class BackendDownloadEntity {
   String downloadID;

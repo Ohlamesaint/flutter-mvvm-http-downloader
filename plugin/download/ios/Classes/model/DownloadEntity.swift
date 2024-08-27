@@ -16,7 +16,8 @@ class DownloadEntity {
     let fileEntity: FileEntity
     let isConcurrent: Bool
     var status: DownloadStatus = DownloadStatus.pending
-    var groupTask: ThrowingTaskGroup<(URL, Int), any Error>? = nil
+    var downloadControlEntity: DownloadControlEntity?
+    
 
     
     
@@ -34,27 +35,30 @@ class DownloadEntity {
         
     
     func pauseDownload() {
+        downloadControlEntity!.pauseDownload()
         status = DownloadStatus.paused
     }
     
     func cancelDownload() {
+        downloadControlEntity!.cancelDownload()
         status = DownloadStatus.canceled
-        groupTask!.cancelAll()
     }
     
     func manualPausedDownload() {
+        downloadControlEntity!.pauseDownload()
         status = DownloadStatus.manualPaused
     }
     
     func resumeDownload() {
+        downloadControlEntity!.resumeDownload()
         status = DownloadStatus.ongoing
     }
     
 }
 
 
-enum DownloadStatus: Encodable {
-    case pending, paused, ongoing, manualPaused, canceled, failed, done
+enum DownloadStatus: String, Encodable {
+    case pending = "pending", paused = "paused", ongoing = "ongoing", manualPaused = "manualPaused", canceled = "canceled", failed = "failed", done = "done"
 }
 
 

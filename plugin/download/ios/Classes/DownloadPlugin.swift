@@ -50,7 +50,6 @@ public class DownloadPlugin: NSObject, FlutterPlugin {
           }
           
           Task {
-              NSLog("Start")
               let serviceResult: ServiceResult<Int> = await self.downloadService.createDownload(urlString: urlString, isConcurrent:  isConcurrent)
               let response = MethodChannelResponse(serviceResult: serviceResult)
               result(String(data: try JSONEncoder().encode(response), encoding: .utf8) )
@@ -60,14 +59,68 @@ public class DownloadPlugin: NSObject, FlutterPlugin {
           
                   
       case "resumeDownload":
+          guard let downloadID = args["downloadID"] as? String else {
+              result(FlutterError.init(code: "errorSetDebug", message: "data or format error", details: nil))
+              return
+          }
           
-          result("resumeDownload")
+          Task {
+              do {
+                  let serviceResult: ServiceResult<Int> = await self.downloadService.resumeDownload(downloadID: downloadID)
+                  let response = MethodChannelResponse(serviceResult: serviceResult)
+                  result(String(data: try JSONEncoder().encode(response), encoding: .utf8))
+              } catch {
+                  result(FlutterError.init(code: "jsonSerailizationError", message: "resumeDownload response serialization failed", details: nil))
+              }
+          }
+          
+          
+          
       case "cancelDownload":
-          result("cancelDownload")
+          guard let downloadID = args["downloadID"] as? String else {
+              result(FlutterError.init(code: "errorSetDebug", message: "data or format error", details: nil))
+              return
+          }
+          
+          Task {
+              do {
+                  let serviceResult: ServiceResult<Int> = await self.downloadService.cancelDownload(downloadID: downloadID)
+                  let response = MethodChannelResponse(serviceResult: serviceResult)
+                  result(String(data: try JSONEncoder().encode(response), encoding: .utf8))
+              } catch {
+                  result(FlutterError.init(code: "jsonSerailizationError", message: "cancelDownload response serialization failed", details: nil))
+              }
+          }
       case "pauseDownload":
-          result("pauseDownload")
+          guard let downloadID = args["downloadID"] as? String else {
+              result(FlutterError.init(code: "errorSetDebug", message: "data or format error", details: nil))
+              return
+          }
+          
+          Task {
+              do {
+                  let serviceResult: ServiceResult<Int> = await self.downloadService.pauseDownload(downloadID: downloadID)
+                  let response = MethodChannelResponse(serviceResult: serviceResult)
+                  result(String(data: try JSONEncoder().encode(response), encoding: .utf8))
+              } catch {
+                  result(FlutterError.init(code: "jsonSerailizationError", message: "pauseDownload response serialization failed", details: nil))
+              }
+          }
       case "manualPauseDownload":
-          result("manualPauseDownload")
+          guard let downloadID = args["downloadID"] as? String else {
+              result(FlutterError.init(code: "errorSetDebug", message: "data or format error", details: nil))
+              return
+          }
+          
+          Task {
+              do {
+                  let serviceResult: ServiceResult<Int> = await self.downloadService.manualPauseDownload(downloadID: downloadID)
+                  let response = MethodChannelResponse(serviceResult: serviceResult)
+                  result(String(data: try JSONEncoder().encode(response), encoding: .utf8))
+              } catch {
+                  result(FlutterError.init(code: "jsonSerailizationError", message: "manualPauseDownload response serialization failed", details: nil))
+              }
+          }
       default:
           NSLog(call.method)
           result(FlutterMethodNotImplemented)

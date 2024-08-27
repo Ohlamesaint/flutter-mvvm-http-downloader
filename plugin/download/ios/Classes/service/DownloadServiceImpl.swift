@@ -55,7 +55,6 @@ class DownloadServiceImpl: DownloadService {
         do {
             try downloadRepository.fetchImage(baseOn: downloadEntity, updateProgress: updateProgress)
             downloadEntity.status = DownloadStatus.ongoing
-            // TODO: add progress
         } catch {
             
         }
@@ -63,34 +62,32 @@ class DownloadServiceImpl: DownloadService {
         
     }
     
-    func resumeDownload(downloadID: String) -> ServiceResult<Int> {
+    func resumeDownload(downloadID: String) async -> ServiceResult<Int> {
         let target = id2DownloadEntity[downloadID]
         target!.resumeDownload()
-        // TODO: add progress
+        await updateProgress()
         return ServiceResult<Int>(data: _calculateOngoingDownload())
     }
     
-    func cancelDownload(downloadID: String) -> ServiceResult<Int> {
+    func cancelDownload(downloadID: String) async -> ServiceResult<Int> {
         let target = id2DownloadEntity[downloadID]
         target!.cancelDownload()
-        // TODO: add progress
-        
-        // remove all files
+        await updateProgress()
         return ServiceResult<Int>(data: _calculateOngoingDownload())
         
     }
     
-    func pauseDownload(downloadID: String) -> ServiceResult<Int> {
+    func pauseDownload(downloadID: String) async -> ServiceResult<Int> {
         let target = id2DownloadEntity[downloadID]
         target!.pauseDownload()
-        // TODO: add progress
+        await updateProgress()
         return ServiceResult<Int>(data: _calculateOngoingDownload())
     }
     
-    func manualPauseDownload(downloadID: String) -> ServiceResult<Int> {
+    func manualPauseDownload(downloadID: String) async -> ServiceResult<Int> {
         let target = id2DownloadEntity[downloadID]
         target!.manualPausedDownload()
-        // TODO: add progress
+        await updateProgress()
         return ServiceResult<Int>(data: _calculateOngoingDownload())
     }
     

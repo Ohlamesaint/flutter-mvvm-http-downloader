@@ -29,7 +29,8 @@ final class DownloadRepositoryFlutterImpl implements DownloadRepository {
   }
 
   @override
-  Future<ServiceResult<int>> createDownload({required String urlString}) async {
+  Future<ServiceResult<int>> createDownload(
+      {required String urlString, required bool isConcurrent}) async {
     try {
       MethodChannelResponse<int> response = MethodChannelResponse<int>.fromJson(
           jsonDecode(await backendDownloadController.createDownload(

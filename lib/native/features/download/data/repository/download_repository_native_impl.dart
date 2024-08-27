@@ -1,29 +1,22 @@
 import 'dart:convert';
-import 'dart:developer';
 
-import 'package:flutter/services.dart';
-import '../../domain/repository/download_repository.dart';
-import '../../../../api/service_result.dart';
-import '../mapper/raw_response_to_service_result_mapper.dart';
-import '../../domain/entity/download_entity.dart';
+import 'package:perfect_corp_homework/native/features/download/domain/repository/download_repository.dart';
+import 'package:perfect_corp_homework/native/api/service_result.dart';
+import 'package:perfect_corp_homework/native/features/download/data/mapper/raw_response_to_service_result_mapper.dart';
+import 'package:download/download.dart';
 
 final class DownloadRepositoryNativeImpl implements DownloadRepository {
   // return numbers of ongoing downloads
 
-  final EventChannel _progressEventChannel =
-      const EventChannel('http_downloader/download/progress');
-  final EventChannel _finishedEventChannel =
-      const EventChannel('http_downloader/download/finished');
-  final MethodChannel _methodChannel =
-      const MethodChannel('http_downloader/download');
+  Download downloader = Download();
 
   @override
-  Future<ServiceResult<int>> createDownload({required String urlString}) async {
+  Future<ServiceResult<int>> createDownload(
+      {required String urlString, required bool isConcurrent}) async {
     try {
-      final Map<String, dynamic> methodChannelRawResponse =
-          jsonDecode(await _methodChannel.invokeMethod("createDownload", {
-        "urlString": urlString,
-      }));
+      final Map<String, dynamic> methodChannelRawResponse = jsonDecode(
+          await downloader.createDownload(
+              urlString: urlString, isConcurrent: isConcurrent));
       return RawResponseToServiceResultMapper<int>()
           .mapping(methodChannelRawResponse, null);
     } catch (e) {
@@ -36,9 +29,7 @@ final class DownloadRepositoryNativeImpl implements DownloadRepository {
       {required String downloadID}) async {
     try {
       final Map<String, dynamic> methodChannelRawResponse =
-          jsonDecode(await _methodChannel.invokeMethod("cancelDownload", {
-        "downloadID": downloadID,
-      }));
+          jsonDecode(await downloader.cancelDownload(downloadID: downloadID));
       return RawResponseToServiceResultMapper<int>()
           .mapping(methodChannelRawResponse, null);
     } catch (e) {
@@ -50,9 +41,7 @@ final class DownloadRepositoryNativeImpl implements DownloadRepository {
   Future<ServiceResult<int>> pauseDownload({required String downloadID}) async {
     try {
       final Map<String, dynamic> methodChannelRawResponse =
-          jsonDecode(await _methodChannel.invokeMethod("pauseDownload", {
-        "downloadID": downloadID,
-      }));
+          jsonDecode(await downloader.pauseDownload(downloadID: downloadID));
       return RawResponseToServiceResultMapper<int>()
           .mapping(methodChannelRawResponse, null);
     } catch (e) {
@@ -65,9 +54,7 @@ final class DownloadRepositoryNativeImpl implements DownloadRepository {
       {required String downloadID}) async {
     try {
       final Map<String, dynamic> methodChannelRawResponse =
-          jsonDecode(await _methodChannel.invokeMethod("resumeDownload", {
-        "downloadID": downloadID,
-      }));
+          jsonDecode(await downloader.resumeDownload(downloadID: downloadID));
       return RawResponseToServiceResultMapper<int>()
           .mapping(methodChannelRawResponse, null);
     } catch (e) {
@@ -79,10 +66,8 @@ final class DownloadRepositoryNativeImpl implements DownloadRepository {
   Future<ServiceResult<int>> manualPauseDownload(
       {required String downloadID}) async {
     try {
-      final Map<String, dynamic> methodChannelRawResponse =
-          jsonDecode(await _methodChannel.invokeMethod("manualPauseDownload", {
-        "downloadID": downloadID,
-      }));
+      final Map<String, dynamic> methodChannelRawResponse = jsonDecode(
+          await downloader.manualPauseDownload(downloadID: downloadID));
       return RawResponseToServiceResultMapper<int>()
           .mapping(methodChannelRawResponse, null);
     } catch (e) {
@@ -94,7 +79,7 @@ final class DownloadRepositoryNativeImpl implements DownloadRepository {
   ServiceResult<Stream> getDownloadListStream() {
     try {
       ServiceResult<Stream> result =
-          ServiceResult.success(_progressEventChannel.receiveBroadcastStream());
+          ServiceResult.success(downloader.getDownloadListStream());
       return result;
     } catch (e) {
       return ServiceResult<Stream<String>>.error(e);
@@ -105,7 +90,7 @@ final class DownloadRepositoryNativeImpl implements DownloadRepository {
   ServiceResult<Stream> getFinishedEventStream() {
     try {
       ServiceResult<Stream> result =
-          ServiceResult.success(_finishedEventChannel.receiveBroadcastStream());
+          ServiceResult.success(downloader.getFinishedEventStream());
       return result;
     } catch (e) {
       return ServiceResult<Stream<String>>.error(e);

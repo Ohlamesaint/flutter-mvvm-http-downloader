@@ -13,6 +13,8 @@ class FileUtil {
   /// move the file to [newPath] and delete the [sourceFile]
   static Future<File> moveFile(File sourceFile, String newPath) async {
     try {
+      print(sourceFile.path);
+      print(newPath);
       return await sourceFile.rename(newPath);
     } on FileSystemException {
       final newFile = await sourceFile.copy(newPath);
@@ -48,6 +50,11 @@ class FileUtil {
     Random rnd = Random();
     return String.fromCharCodes(Iterable.generate(
         length, (_) => chars.codeUnitAt(rnd.nextInt(chars.length))));
+  }
+
+  static Future<void> createFile(String path) async {
+    await File(path).create();
+    return;
   }
 
   static Future<String> generatePersistThumbnailName(

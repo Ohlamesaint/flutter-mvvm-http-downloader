@@ -57,7 +57,8 @@ class DownloadCardView extends StatelessWidget {
                   Expanded(
                     child: TextButton(
                       // change to provider of _downloadStatus
-                      onPressed: downloadEntity.status != DownloadStatus.ongoing
+                      onPressed: (downloadEntity.isConcurrent ||
+                              downloadEntity.status != DownloadStatus.ongoing)
                           ? null
                           : () {
                               BlocProvider.of<DownloadControlBloc>(context).add(
@@ -73,10 +74,10 @@ class DownloadCardView extends StatelessWidget {
                   ),
                   Expanded(
                     child: TextButton(
-                      onPressed: downloadEntity.status !=
-                                  DownloadStatus.paused &&
-                              downloadEntity.status !=
-                                  DownloadStatus.manualPaused
+                      onPressed: (downloadEntity.isConcurrent ||
+                              (downloadEntity.status != DownloadStatus.paused &&
+                                  downloadEntity.status !=
+                                      DownloadStatus.manualPaused))
                           ? null
                           : () {
                               BlocProvider.of<DownloadControlBloc>(context).add(

@@ -4,7 +4,8 @@ sealed class DownloadControlEvent {}
 
 class CreateDownload extends DownloadControlEvent {
   String url;
-  CreateDownload(this.url);
+  bool isConcurrent;
+  CreateDownload(this.url, this.isConcurrent);
 }
 
 class PauseDownload extends DownloadControlEvent {

@@ -3,13 +3,14 @@ import 'package:equatable/equatable.dart';
 import 'file_entity.dart';
 
 class DownloadEntity with EquatableMixin {
-  String downloadID;
-  String url;
-  int totalLength;
-  int currentLength;
-  DownloadStatus status;
+  final String downloadID;
+  final String url;
+  final int totalLength;
+  final int currentLength;
+  final bool isConcurrent;
+  final DownloadStatus status;
 
-  FileEntity fileEntity;
+  final FileEntity fileEntity;
 
   DownloadEntity({
     required this.downloadID,
@@ -17,12 +18,24 @@ class DownloadEntity with EquatableMixin {
     required this.totalLength,
     required this.currentLength,
     required this.status,
+    required this.isConcurrent,
     required this.fileEntity,
   });
 
   @override
   List<Object?> get props =>
-      [downloadID, url, totalLength, currentLength, status];
+      [downloadID, url, totalLength, currentLength, isConcurrent, status];
+
+  factory DownloadEntity.fromJson(Map<String, dynamic> json) => DownloadEntity(
+        downloadID: json['downloadID'],
+        url: json['url'],
+        totalLength: json['totalLength'],
+        currentLength: json['currentLength'],
+        isConcurrent: json['isConcurrent'],
+        status: DownloadStatus.fromJson(json['status']),
+        fileEntity:
+            FileEntity.fromJson(Map<String, dynamic>.from(json['fileEntity'])),
+      );
 }
 
 enum DownloadStatus {

@@ -31,6 +31,6 @@ extension FileEntity: Encodable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(filename, forKey: .filename)
         try container.encode(fileType, forKey: .fileType)
-        try container.encode(temporaryImagePath, forKey: .temporaryImagePath)
+        try container.encode(temporaryImagePath.replacingOccurrences(of: "file://", with: ""), forKey: .temporaryImagePath)
     }
 }

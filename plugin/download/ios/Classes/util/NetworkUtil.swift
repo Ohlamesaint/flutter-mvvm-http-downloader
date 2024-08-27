@@ -13,20 +13,20 @@ class NetworkUtil {
         var request = URLRequest(url: url)
         request.httpMethod = "HEAD"
         
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (_, response) = try await URLSession.shared.data(for: request)
         guard (response as? HTTPURLResponse)?.statusCode == 200 else {throw AppError.BadRequestError}
         
         return (response as! HTTPURLResponse)
     }
     
-    static func downloadWithRangeWithCompletion(source url: URL, from start: Int, to end: Int, destination tempFile: URL, completion handler : @escaping (Data?, URLResponse?, Error?) -> Void)->URLSessionDataTask {
+    static func downloadWithRangeWithCompletion(source url: URL, from start: Int, to end: Int, destination tempFile: URL, completion handler : @escaping (Data?, URLResponse?, Error?) ->  Void) {
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.addValue("bytes=\(start)-\(end)", forHTTPHeaderField: "Range")
         
         let task = URLSession.shared.dataTask(with: request, completionHandler: handler)
+        task.resume()
         
-        return task
     }
     
     static func downloadWithRange(source url: URL, from start: Int, to end: Int, destination tempFile: URL) async {

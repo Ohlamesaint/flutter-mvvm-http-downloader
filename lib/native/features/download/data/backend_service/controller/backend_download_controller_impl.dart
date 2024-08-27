@@ -1,11 +1,10 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:perfect_corp_homework/native/features/download/data/backend_service/controller/backend_download_controller.dart';
 import 'package:perfect_corp_homework/native/features/download/data/backend_service/controller/mapper/service_result_to_raw_response.dart';
 import 'package:perfect_corp_homework/native/features/download/data/backend_service/model/backend_download_entity.dart';
 import 'package:perfect_corp_homework/native/features/download/data/backend_service/service/backend_download_service.dart';
-import '../api/service_result.dart';
+import 'package:perfect_corp_homework/native/features/download/data/backend_service/api/service_result.dart';
 
 class BackendDownloadControllerImpl implements BackendDownloadController {
   BackendDownloadService backendDownloadService;

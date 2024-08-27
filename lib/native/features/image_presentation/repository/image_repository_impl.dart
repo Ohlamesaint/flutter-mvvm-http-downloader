@@ -3,14 +3,12 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
-import 'package:path_provider/path_provider.dart';
 
-import '../../../features/download/domain/entity/download_entity.dart';
-import '../../../api/service_result.dart';
-import '../../../util/file_util.dart';
-import '../../download/domain/entity/file_entity.dart';
-import '../model/image_model.dart';
-import 'image_repository.dart';
+import 'package:perfect_corp_homework/native/features/download/domain/entity/download_entity.dart';
+import 'package:perfect_corp_homework/native/api/service_result.dart';
+import 'package:perfect_corp_homework/native/util/file_util.dart';
+import 'package:perfect_corp_homework/native/features/image_presentation/model/image_model.dart';
+import 'package:perfect_corp_homework/native/features/image_presentation/repository/image_repository.dart';
 
 final _firestore = FirebaseFirestore.instance;
 
@@ -27,7 +25,11 @@ class ImageRepositoryImpl implements ImageRepository {
           await FileUtil.generatePersistThumbnailName(
               filename: downloadEntity.fileEntity.filename,
               fileType: downloadEntity.fileEntity.fileType);
+      await FileUtil.createFile(documentAbsolute);
+      await FileUtil.createFile(documentThumbnailAbsolute);
+
       File tempFile = File(downloadEntity.fileEntity.temporaryImagePath);
+
       var persistFile = await FileUtil.moveFile(tempFile, documentAbsolute);
       // compress the image as thumbnail
 
@@ -41,6 +43,7 @@ class ImageRepositoryImpl implements ImageRepository {
 
       log('file $documentAbsolute been added to firebase');
     } catch (e) {
+      log("save image: $e");
       return ServiceResult.error(e);
     }
 
@@ -60,6 +63,7 @@ class ImageRepositoryImpl implements ImageRepository {
           FileUtil.getAllFilesInDirectory(thumbnailsDirectory);
 
       if (originImages.isEmpty) {
+        print("no images");
         return ServiceResult.success([]);
       }
 

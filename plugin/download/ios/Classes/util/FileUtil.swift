@@ -19,6 +19,7 @@ class FileUtil {
         
         defer {
             do{
+                
                 try writer.close()
             } catch {
                 

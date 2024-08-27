@@ -11,8 +11,8 @@ protocol DownloadService{
     
     func createDownload(urlString: String, isConcurrent: Bool) async -> ServiceResult<Int>
     func startDownload(downloadEntity: DownloadEntity) async
-    func resumeDownload(downloadID: String) -> ServiceResult<Int>
-    func cancelDownload(downloadID: String) -> ServiceResult<Int>
-    func pauseDownload(downloadID: String) -> ServiceResult<Int>
-    func manualPauseDownload(downloadID: String) -> ServiceResult<Int>
+    func resumeDownload(downloadID: String) async -> ServiceResult<Int>
+    func cancelDownload(downloadID: String) async -> ServiceResult<Int>
+    func pauseDownload(downloadID: String) async -> ServiceResult<Int>
+    func manualPauseDownload(downloadID: String) async -> ServiceResult<Int>
 }

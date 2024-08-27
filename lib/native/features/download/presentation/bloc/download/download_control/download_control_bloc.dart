@@ -20,8 +20,8 @@ class DownloadControlBloc
   }
 
   onCreateDownload(CreateDownload event, Emitter emit) async {
-    ServiceResult<int> serviceResult =
-        await downloadRepository.createDownload(urlString: event.url);
+    ServiceResult<int> serviceResult = await downloadRepository.createDownload(
+        urlString: event.url, isConcurrent: event.isConcurrent);
     if (!serviceResult.isSuccess) {
       String message = _handleDownloadError(serviceResult.error!);
       emit(ErrorOccur(message));

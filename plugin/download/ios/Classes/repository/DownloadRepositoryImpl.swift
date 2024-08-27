@@ -26,9 +26,7 @@ class DownloadRepositoryImpl: DownloadRepository {
         
         let contentLength = contentLengthInfo == nil ? 0 : Int(contentLengthInfo!)
         let acceptRange = acceptRangesInfo == nil ? false :  acceptRangesInfo!=="bytes"
-        
-        // TODO: use stream for acceptRange
-        
+                
         let filename = FileUtil.generateFileName()
         let fileType = url.pathExtension
         let tempDownloadFileString = FileUtil.createTempFile(withName: filename, andType: fileType)
@@ -48,19 +46,11 @@ class DownloadRepositoryImpl: DownloadRepository {
         
         
         Task {
-            var fileSegments: [URL]
             if(downloadEntity.isConcurrent) {
-                fileSegments = try await _concurrentFetchDownload(baseOn: downloadEntity, notifier: updateProgress)
+                try await _concurrentFetchDownload(baseOn: downloadEntity, notifier: updateProgress)
             } else {
-                fileSegments = try await _sequentialFetchDownload(baseOn: downloadEntity, notifier: updateProgress)
+                try _sequentialFetchDownload(baseOn: downloadEntity, notifier: updateProgress)
             }
-            
-            try await FileUtil.combineFiles(fileSegments: fileSegments.sorted(by: {f1, f2 in
-                return Int(f1.lastPathComponent.split(separator: "_")[0])! <
-                Int(f2.lastPathComponent.split(separator: "_")[0])!
-            }), to: URL(string: downloadEntity.fileEntity.temporaryImagePath)!)
-    
-            try await _finalizeDownload(on: downloadEntity, notifier: updateProgress)
         }
     }
     
@@ -76,25 +66,43 @@ class DownloadRepositoryImpl: DownloadRepository {
             self.tempFileSegment = tempFileSegment
             self.url = url
         }
+        let observation = Operation.observationInfo()
         
-        override func start() {
+        override func main() {        
             NetworkUtil.downloadWithRangeWithCompletion(source: URL(string: url)!, from: startByte, to: endByte, destination: tempFileSegment) { data, response, error in
+                do {
+                    FileUtil.storeByteStreamToFile(from: data!, to: self.tempFileSegment)
+                    print("\(self.startByte)-\(self.endByte) finished, length \(try Data(contentsOf: self.tempFileSegment.absoluteURL).count)")
+                } catch {
+                    
+                }
+                
                 self.finish()
             }
         }
     }
     
-    // based on AsyncSequence
-    private func _sequentialFetchDownload(baseOn downloadEntity: DownloadEntity, notifier updateProgress: @escaping () async -> Void) async throws -> [URL] {
-    
+    actor FileSegmentActor {
         var fileSegments: [URL] = []
         
+        func getFiles() async -> [URL] {
+            return fileSegments
+        }
+        
+        func addFile(file: URL) async {
+            fileSegments.append(file)
+        }
+    }
+    
+    // based on AsyncSequence
+    private func _sequentialFetchDownload(baseOn downloadEntity: DownloadEntity, notifier updateProgress: @escaping () async -> Void) throws {
+        let fileSegmentActor = FileSegmentActor()
+
+    
         let totalRequest = (downloadEntity.totalLength + LENGTH_PER_REQUEST - 1) / LENGTH_PER_REQUEST
         
-        let queue = OperationQueue()
-        queue.isSuspended = false
-        queue.maxConcurrentOperationCount = 1
-        
+
+        var operations: [Operation] = []
         for index in (0..<totalRequest) {
             let fileSegmentName = "\(index)_\(downloadEntity.fileEntity.filename)"
             let tempFileSegment = FileUtil.createTempFile(withName: fileSegmentName, andType: "tmp")
@@ -102,25 +110,42 @@ class DownloadRepositoryImpl: DownloadRepository {
             let operation = RangeDownloadOperation(startByte: start, endByte: end, tempFileSegment: tempFileSegment, url: downloadEntity.url)
             operation.completionBlock = {
                 downloadEntity.updateProgress(length: len)
-                fileSegments.append(tempFileSegment.absoluteURL)
+                Task.detached{
+                    await fileSegmentActor.addFile(file: tempFileSegment)
+                }
                 Task.detached{@MainActor in await updateProgress()}
+                
             }
-            queue.addOperation(operation)
+            operations.append(operation)
+            
+        }
+        let queue = OperationQueue()
+        downloadEntity.downloadControlEntity = SequentialDownloadControlEntity(queue: queue)
+        queue.maxConcurrentOperationCount = 1
+        queue.addOperations(operations, waitUntilFinished: true)
+        queue.addBarrierBlock{
+            Task.detached{
+                try await FileUtil.combineFiles(fileSegments: (await fileSegmentActor.getFiles()).sorted(by: {f1, f2 in
+                    return Int(f1.lastPathComponent.split(separator: "_")[0])! <
+                    Int(f2.lastPathComponent.split(separator: "_")[0])!
+                }), to: URL(string: downloadEntity.fileEntity.temporaryImagePath)!)
+                try await self._finalizeDownload(on: downloadEntity, notifier: updateProgress)
+            }
         }
         
-        return fileSegments
+        queue.isSuspended = false
         
     }
         
     // Based on TaskGroup
-    private func _concurrentFetchDownload(baseOn downloadEntity: DownloadEntity, notifier updateProgress: @escaping () async -> Void) async throws -> [URL] {
+    private func _concurrentFetchDownload(baseOn downloadEntity: DownloadEntity, notifier updateProgress: @escaping () async -> Void) async throws {
         
         var fileSegments: [URL] = []
         
         let totalRequest = (downloadEntity.totalLength + LENGTH_PER_REQUEST - 1) / LENGTH_PER_REQUEST
         
         try await withThrowingTaskGroup(of: (URL, Int).self) { group in
-            downloadEntity.groupTask = group
+            downloadEntity.downloadControlEntity = ConcurrentDownloadControlEntity(groupTask: group)
             for index in (0..<totalRequest) {
                 group.addTask {
                     let fileSegmentName = "\(index)_\(downloadEntity.fileEntity.filename)"
@@ -139,7 +164,13 @@ class DownloadRepositoryImpl: DownloadRepository {
                 // notify new progress
             }
         }
-        return fileSegments
+        
+        try await FileUtil.combineFiles(fileSegments: fileSegments.sorted(by: {f1, f2 in
+            return Int(f1.lastPathComponent.split(separator: "_")[0])! <
+            Int(f2.lastPathComponent.split(separator: "_")[0])!
+        }), to: URL(string: downloadEntity.fileEntity.temporaryImagePath)!)
+
+        try await _finalizeDownload(on: downloadEntity, notifier: updateProgress)
     }
     
     private func _finalizeDownload(on downloadEntity: DownloadEntity, notifier updateProgress: @escaping () async -> Void) async throws {
@@ -162,66 +193,3 @@ class DownloadRepositoryImpl: DownloadRepository {
 
 
 
-open class AsyncOperation: Operation {
-    private let lockQueue = DispatchQueue(label: "lockQueue", attributes: .concurrent)
-
-    override open var isAsynchronous: Bool {
-        return true
-    }
-
-    private var _isExecuting: Bool = false
-    override open private(set) var isExecuting: Bool {
-        get {
-            return lockQueue.sync { () -> Bool in
-                return _isExecuting
-            }
-        }
-        set {
-            willChangeValue(forKey: "isExecuting")
-            lockQueue.sync(flags: [.barrier]) {
-                _isExecuting = newValue
-            }
-            didChangeValue(forKey: "isExecuting")
-        }
-    }
-
-    private var _isFinished: Bool = false
-    override open private(set) var isFinished: Bool {
-        get {
-            return lockQueue.sync { () -> Bool in
-                return _isFinished
-            }
-        }
-        set {
-            willChangeValue(forKey: "isFinished")
-            lockQueue.sync(flags: [.barrier]) {
-                _isFinished = newValue
-            }
-            didChangeValue(forKey: "isFinished")
-        }
-    }
-    
-    override open func start() {
-        guard !isCancelled else {
-            finish()
-            return
-        }
-
-        isFinished = false
-        isExecuting = true
-        main()
-    }
-
-    override open func main() {
-        /// Use a dispatch after to mimic the scenario of a long-running task.
-        DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.seconds(1), execute: {
-            print("Executing")
-            self.finish()
-        })
-    }
-
-    open func finish() {
-        isExecuting = false
-        isFinished = true
-    }
-}

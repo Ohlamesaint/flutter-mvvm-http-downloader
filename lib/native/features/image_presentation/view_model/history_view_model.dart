@@ -2,15 +2,13 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
-import 'package:perfect_corp_homework/native/features/download/data/backend_service/service/backend_download_service_impl.dart';
-import 'package:perfect_corp_homework/native/features/download/domain/entity/download_entity.dart';
 
-import '../../../features/download/domain/repository/download_repository.dart';
-import '../../../api/service_result.dart';
-import '../model/image_model.dart';
-import '../repository/image_repository.dart';
-import '../../../injection_container.dart';
-import '../../download/data/model/download_model.dart';
+import 'package:perfect_corp_homework/native/features/download/domain/repository/download_repository.dart';
+import 'package:perfect_corp_homework/native/api/service_result.dart';
+import 'package:perfect_corp_homework/native/features/image_presentation/model/image_model.dart';
+import 'package:perfect_corp_homework/native/features/image_presentation/repository/image_repository.dart';
+import 'package:perfect_corp_homework/native/injection_container.dart';
+import 'package:perfect_corp_homework/native/features/download/domain/entity/download_entity.dart';
 
 class HistoryViewModel extends ChangeNotifier {
   bool isFetchingData = true;
@@ -23,9 +21,11 @@ class HistoryViewModel extends ChangeNotifier {
         .getFinishedEventStream()
         .data!
         .listen((finishedDownloadEntity) async {
-      log(finishedDownloadEntity);
       await locator<ImageRepository>().saveImage(
-          DownloadModel.fromJson(jsonDecode(finishedDownloadEntity)));
+        DownloadEntity.fromJson(
+          Map<String, dynamic>.from(finishedDownloadEntity),
+        ),
+      );
       await fetchImages();
     });
   }
@@ -33,7 +33,6 @@ class HistoryViewModel extends ChangeNotifier {
   Future<void> fetchImages() async {
     isFetchingData = true;
     notifyListeners();
-
     ServiceResult<List<ImageModel>> serviceResult =
         await locator<ImageRepository>().fetchImages();
     if (serviceResult.error != null) {
@@ -42,6 +41,7 @@ class HistoryViewModel extends ChangeNotifier {
       return;
     }
     imageModels = serviceResult.data!;
+    print(imageModels);
     isFetchingData = false;
     notifyListeners();
   }

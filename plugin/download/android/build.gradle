@@ -2,14 +2,14 @@ group = "com.example.perfect_corp_homework.download"
 version = "1.0-SNAPSHOT"
 
 buildscript {
-    ext.kotlin_version = "1.7.10"
+    ext.kotlin_version = "2.0.10"
     repositories {
         google()
         mavenCentral()
     }
 
     dependencies {
-        classpath("com.android.tools.build:gradle:7.3.0")
+        classpath("com.android.tools.build:gradle:7.3.1")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
     }
 }
@@ -23,6 +23,7 @@ allprojects {
 
 apply plugin: "com.android.library"
 apply plugin: "kotlin-android"
+
 
 android {
     if (project.android.hasProperty("namespace")) {
@@ -46,12 +47,22 @@ android {
     }
 
     defaultConfig {
-        minSdk = 21
+        minSdk = 24
     }
 
     dependencies {
+
+        implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+        implementation 'com.google.code.gson:gson:2.11.0'
+        implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1'
+        implementation 'org.slf4j:slf4j-android:1.7.36'
+        implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1'
+        implementation 'com.google.gms:google-services:4.4.2'
+        implementation(platform("com.google.firebase:firebase-bom:33.2.0"))
+
+
         testImplementation("org.jetbrains.kotlin:kotlin-test")
-        testImplementation("org.mockito:mockito-core:5.0.0")
+        testImplementation("org.mockito:mockito-core:5.1.0")
     }
 
     testOptions {
