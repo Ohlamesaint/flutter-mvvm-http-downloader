@@ -10,3 +10,12 @@ It seems to be incorrect.""";
 
 val kNoInternetErrorMessage = """Please connect to the internet.
 """;
+
+val kSupportMediaTypes = setOf<String>(
+"apng",
+"avif",
+"gif",
+"jpeg",
+"png",
+"webp"
+)

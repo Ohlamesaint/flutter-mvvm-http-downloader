@@ -15,6 +15,7 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
@@ -91,53 +92,38 @@ class DownloadPlugin: FlutterPlugin, MethodCallHandler {
       "createDownload" -> runBlocking {
         val urlString: String = call.argument<String>("urlString") as String
         val isConcurrent: Boolean = call.argument<Boolean>("isConcurrent") as Boolean
-
-        launch(Dispatchers.Default) {
-
-          val serviceResult = downloadService.createDownload(urlString = urlString, isConcurrent = isConcurrent)
-
-          val methodChannelResponse = MethodChannelResponse<Int>(serviceResult)
-
-          val jsonString = gson.toJson(methodChannelResponse)
-
-          result.success(jsonString)
-        }
+        val serviceResult = downloadService.createDownload(urlString = urlString, isConcurrent = isConcurrent)
+        val methodChannelResponse = MethodChannelResponse<Int>(serviceResult)
+        val jsonString = gson.toJson(methodChannelResponse)
+        result.success(jsonString)
       }
-      "pauseDownload" -> runBlocking {
-        launch(Dispatchers.Main) {
+      "pauseDownload" -> {
           val downloadID: String = call.argument<String>("downloadID") as String
           val serviceResult = downloadService.pauseDownload(downloadID = downloadID)
           val methodChannelResponse = MethodChannelResponse<Int>(serviceResult)
           val jsonString = gson.toJson(methodChannelResponse)
           result.success(jsonString)
-        }
       }
       "resumeDownload" -> runBlocking {
-        launch(Dispatchers.Main) {
           val downloadID: String = call.argument<String>("downloadID") as String
           val serviceResult = downloadService.resumeDownload(downloadID = downloadID)
           val methodChannelResponse = MethodChannelResponse<Int>(serviceResult)
           val jsonString = gson.toJson(methodChannelResponse)
           result.success(jsonString)
-        }
       }
-      "cancelDownload" -> runBlocking {
-        launch(Dispatchers.Main) {
+      "cancelDownload" -> {
         val downloadID: String = call.argument<String>("downloadID") as String
         val serviceResult = downloadService.cancelDownload(downloadID = downloadID)
         val methodChannelResponse = MethodChannelResponse<Int>(serviceResult)
         val jsonString = gson.toJson(methodChannelResponse)
         result.success(jsonString)
-        }
       }
-      "manualPauseDownload" -> runBlocking {
-        launch(Dispatchers.IO) {
-          val downloadID: String = call.argument<String>("downloadID") as String
-          val serviceResult = downloadService.pauseDownload(downloadID = downloadID)
-          val methodChannelResponse = MethodChannelResponse<Int>(serviceResult)
-          val jsonString = gson.toJson(methodChannelResponse)
-          result.success(jsonString)
-        }
+      "manualPauseDownload" -> {
+        val downloadID: String = call.argument<String>("downloadID") as String
+        val serviceResult = downloadService.pauseDownload(downloadID = downloadID)
+        val methodChannelResponse = MethodChannelResponse<Int>(serviceResult)
+        val jsonString = gson.toJson(methodChannelResponse)
+        result.success(jsonString)
       }
     }
   }

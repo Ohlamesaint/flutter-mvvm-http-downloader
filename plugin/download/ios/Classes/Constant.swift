@@ -19,8 +19,16 @@ apng, avif, gif, jpeg, png, webp
 It seems to be incorrect.
 """
 
-    static let letkNoInternetErrorMessage = """
-Please connect to the internet.
+    static let kNoInternetErrorMessage = """
+Please check your the internet connection...
 """
 
+    static let kSupportMediaTypes: Set = [
+      "apng",
+      "avif",
+      "gif",
+      "jpeg",
+      "png",
+      "webp"
+    ]
 }

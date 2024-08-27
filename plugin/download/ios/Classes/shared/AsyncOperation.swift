@@ -13,7 +13,7 @@ open class AsyncOperation: Operation {
     override open var isAsynchronous: Bool {
         return true
     }
-
+    
     private var _isExecuting: Bool = false
     override open private(set) var isExecuting: Bool {
         get {

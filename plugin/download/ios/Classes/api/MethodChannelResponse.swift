@@ -21,6 +21,8 @@ class MethodChannelResponse<T: Encodable>{
                 statusCode = 10000
             case .BadRequestError:
                 statusCode = 10001
+            case .NoInternetError:
+                statusCode = 10002
             case .UnknownError(_):
                 statusCode = 10003
             }

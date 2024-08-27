@@ -13,10 +13,18 @@ class NetworkUtil {
         var request = URLRequest(url: url)
         request.httpMethod = "HEAD"
         
-        let (_, response) = try await URLSession.shared.data(for: request)
-        guard (response as? HTTPURLResponse)?.statusCode == 200 else {throw AppError.BadRequestError}
-        
-        return (response as! HTTPURLResponse)
+        do {
+            let (_, response) = try await URLSession.shared.data(for: request)
+            guard (response as? HTTPURLResponse)?.statusCode == 200 else {
+                throw AppError.BadRequestError
+            }
+            return (response as! HTTPURLResponse)
+        } catch {
+            if((error is URLError) && (error as! URLError).networkUnavailableReason != nil) {
+                throw AppError.NoInternetError
+            }
+            throw AppError.UnknownError(error.localizedDescription)
+        }
     }
     
     static func downloadWithRangeWithCompletion(source url: URL, from start: Int, to end: Int, destination tempFile: URL, completion handler : @escaping (Data?, URLResponse?, Error?) ->  Void) {

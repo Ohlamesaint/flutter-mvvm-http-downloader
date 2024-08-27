@@ -10,7 +10,19 @@ import Foundation
 class FileUtil {
     private init() {}
 
-    
+
+    static func removeFiles(fileSegments: [URL]) {
+        for fileSegment in fileSegments {
+            do {
+                try FileManager.default.removeItem(at: fileSegment)
+            } catch {
+                
+            }
+            
+        }
+
+    }
+
     static func combineFiles(fileSegments: [URL], to destination: URL, chunkSize: Int = 500000) async throws {
         FileManager.default.createFile(atPath: destination.path, contents: nil)
         

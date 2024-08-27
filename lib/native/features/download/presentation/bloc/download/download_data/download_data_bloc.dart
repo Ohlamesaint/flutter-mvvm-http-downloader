@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:equatable/equatable.dart';
@@ -27,6 +28,7 @@ class DownloadDataBloc extends Bloc<DownloadDataEvent, DownloadDataState> {
         onData: (data) {
       final List rawDownloadEntityList =
           Platform.isAndroid ? jsonDecode(data) : data;
+      log(rawDownloadEntityList.toString());
       final downloadEntities = rawDownloadEntityList
           .map(
             (rawDownloadEntity) => DownloadEntity.fromJson(

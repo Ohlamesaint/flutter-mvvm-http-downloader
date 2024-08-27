@@ -12,6 +12,7 @@ enum AppError: Error {
     case BadRequestError
     case UnsupportedMediaTypeError
     case UnknownError(String)
+    case NoInternetError
     
     var message: String {
         switch self {
@@ -19,6 +20,8 @@ enum AppError: Error {
             return Constants.kBadRequestErrorMessage
         case .UnsupportedMediaTypeError:
             return Constants.kUnSupportMediaTypeErrorMessage
+        case .NoInternetError:
+            return Constants.kNoInternetErrorMessage
         case .UnknownError(let message):
             return message
         }

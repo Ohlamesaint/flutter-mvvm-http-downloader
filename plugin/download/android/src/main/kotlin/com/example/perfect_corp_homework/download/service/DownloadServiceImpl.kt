@@ -26,14 +26,12 @@ class DownloadServiceImpl constructor(private val downloadRepository: DownloadRe
     override suspend fun createDownload(urlString: String, isConcurrent: Boolean) : ServiceResult<Int> {
 
         try {
-            val downloadEntity = async(Dispatchers.Default) {
+            val downloadEntity = async(Dispatchers.IO) {
                 downloadRepository.configureDownload(
                     urlString = urlString, isConcurrent = isConcurrent)
             }.await()
             id2DownloadEntity+=(downloadEntity.downloadID to downloadEntity)
-            launch (Dispatchers.Main) {
-                DownloadPlugin.sendProgressEvent(id2DownloadEntity.values.toList())
-            }.start()
+            DownloadPlugin.sendProgressEvent(id2DownloadEntity.values.toList())
 
             startDownload(downloadEntity)
             return ServiceResult<Int>(data = calculateOngoingDownload())
@@ -45,10 +43,9 @@ class DownloadServiceImpl constructor(private val downloadRepository: DownloadRe
 
 
     val updateProgress = { pair: Pair<String, Int> -> {
+
         id2DownloadEntity[pair.first]!!.updateProgress(pair.second)
-        var l = launch(Dispatchers.Main) {
-            DownloadPlugin.sendProgressEvent(id2DownloadEntity.values.toList())
-        }.start()
+        DownloadPlugin.sendProgressEvent(id2DownloadEntity.values.toList())
     }}
 
     private fun calculateOngoingDownload(): Int {
@@ -58,15 +55,11 @@ class DownloadServiceImpl constructor(private val downloadRepository: DownloadRe
 
     override suspend fun startDownload(downloadEntity: DownloadEntity): Unit {
         try {
-
-
             downloadEntity.status = DownloadStatus.ongoing
             DownloadPlugin.sendProgressEvent(id2DownloadEntity.values.toList())
-
-            launch(Dispatchers.Main) {
+            launch (Dispatchers.IO){
                 downloadRepository.fetchImageWithUrl(downloadEntity = downloadEntity, updateProgress)
-            }.start()
-
+            }
 
         } catch (e: Exception) {
             throw e
@@ -78,39 +71,33 @@ class DownloadServiceImpl constructor(private val downloadRepository: DownloadRe
         return id2DownloadEntity.values.filter { it.status == DownloadStatus.ongoing }.size
     }
 
-    override suspend fun pauseDownload(downloadID: String): ServiceResult<Int> {
+    override fun pauseDownload(downloadID: String): ServiceResult<Int> {
         val target = id2DownloadEntity[downloadID]
         target!!.pauseDownload()
-        withContext(Dispatchers.Main){
-            DownloadPlugin.sendProgressEvent(id2DownloadEntity.values.toList())
-        }
+        DownloadPlugin.sendProgressEvent(id2DownloadEntity.values.toList())
         return ServiceResult(ongoingDownloadCount())
     }
 
     override suspend fun resumeDownload(downloadID: String): ServiceResult<Int> {
         val target = id2DownloadEntity[downloadID]
-        target!!.resumeDownload()
-        withContext(Dispatchers.Main){
-            DownloadPlugin.sendProgressEvent(id2DownloadEntity.values.toList())
+        launch (Dispatchers.IO){
+            target!!.resumeDownload()
         }
+        DownloadPlugin.sendProgressEvent(id2DownloadEntity.values.toList())
         return ServiceResult(ongoingDownloadCount())
     }
 
-    override suspend fun cancelDownload(downloadID: String): ServiceResult<Int> {
+    override  fun cancelDownload(downloadID: String): ServiceResult<Int> {
         val target = id2DownloadEntity[downloadID]
         target!!.cancelDownload()
-        withContext(Dispatchers.Main){
-            DownloadPlugin.sendProgressEvent(id2DownloadEntity.values.toList())
-        }
+        DownloadPlugin.sendProgressEvent(id2DownloadEntity.values.toList())
         return ServiceResult(ongoingDownloadCount())
     }
 
-    override suspend fun manualPauseDownload(downloadID: String): ServiceResult<Int> {
+    override  fun manualPauseDownload(downloadID: String): ServiceResult<Int> {
         val target = id2DownloadEntity[downloadID]
         target!!.manualPauseDownload()
-        withContext(Dispatchers.Main){
-            DownloadPlugin.sendProgressEvent(id2DownloadEntity.values.toList())
-        }
+        DownloadPlugin.sendProgressEvent(id2DownloadEntity.values.toList())
         return ServiceResult(ongoingDownloadCount())
     }
 }

@@ -1,5 +1,6 @@
 package com.example.perfect_corp_homework.download.model
 
+import android.util.Log
 import com.example.perfect_corp_homework.download.model.FileEntity
 import com.example.perfect_corp_homework.download.model.DownloadControlEntity
 import com.example.perfect_corp_homework.download.model.DownloadStatus

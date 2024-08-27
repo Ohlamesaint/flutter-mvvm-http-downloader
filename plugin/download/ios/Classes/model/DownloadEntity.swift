@@ -16,6 +16,7 @@ class DownloadEntity {
     let fileEntity: FileEntity
     let isConcurrent: Bool
     var status: DownloadStatus = DownloadStatus.pending
+    let createAt = Date()
     var downloadControlEntity: DownloadControlEntity?
     
 
@@ -39,8 +40,9 @@ class DownloadEntity {
         status = DownloadStatus.paused
     }
     
-    func cancelDownload() {
+    func cancelDownload() throws {
         downloadControlEntity!.cancelDownload()
+        try fileEntity.removeTempFile()
         status = DownloadStatus.canceled
     }
     

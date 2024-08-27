@@ -161,7 +161,7 @@ class _DownloadViewState extends State<DownloadView> {
                                               textAlign: TextAlign.center,
                                             ),
                                             content: const Text(
-                                                "Sequential download will consume more resource on your device"),
+                                                "Suspendable download will consume more resource on your device"),
                                             actionsAlignment:
                                                 MainAxisAlignment.spaceAround,
                                             actions: [
@@ -179,19 +179,19 @@ class _DownloadViewState extends State<DownloadView> {
                                 },
                                 children: const [
                                   DropdownMenuItem(
-                                      value: "Concurrent",
+                                      value: "Not Suspendable",
                                       alignment: AlignmentDirectional.center,
                                       child: Text(
-                                        "Concurrent",
+                                        "Not Suspendable",
                                         overflow: TextOverflow.ellipsis,
                                         textAlign: TextAlign.center,
                                         style: TextStyle(color: Colors.black),
                                       )),
                                   DropdownMenuItem(
-                                      value: "Sequential",
+                                      value: "Suspendable",
                                       alignment: AlignmentDirectional.center,
                                       child: Text(
-                                        "Sequential",
+                                        "Suspendable",
                                         overflow: TextOverflow.ellipsis,
                                         textAlign: TextAlign.center,
                                         style: TextStyle(color: Colors.black),
@@ -222,7 +222,7 @@ class _DownloadViewState extends State<DownloadView> {
                       ),
                     )),
             child: Text(
-              "Mode: ${isConcurrent ? "Concurrent" : "Sequential"}",
+              "Mode: ${isConcurrent ? "Not Suspendable" : "Suspendable"}",
               style:
                   TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),

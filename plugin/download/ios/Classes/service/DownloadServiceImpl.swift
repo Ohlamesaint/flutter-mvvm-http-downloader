@@ -29,7 +29,10 @@ class DownloadServiceImpl: DownloadService {
             
             return ServiceResult<Int>(data: _calculateOngoingDownload())
         } catch {
-            return ServiceResult<Int>(error: AppError.BadRequestError)
+            if(error is AppError) {
+                return ServiceResult<Int>(error: error as! AppError)
+            }
+            return ServiceResult<Int>(error: AppError.UnknownError(error.localizedDescription))
         }
         
     }
@@ -37,7 +40,9 @@ class DownloadServiceImpl: DownloadService {
     func updateProgress() async {
         do {
             try await MainActor.run {
-                DownloadPlugin.progressEventSink!(try JSONSerialization.jsonObject(with: try JSONEncoder().encode(Array(id2DownloadEntity.values))))
+                DownloadPlugin.progressEventSink!(try JSONSerialization.jsonObject(with: try JSONEncoder().encode(Array(id2DownloadEntity.values.sorted(by: { d1, d2 in
+                    d1.createAt<d2.createAt
+                })))))
             }
             
         } catch {
@@ -71,7 +76,12 @@ class DownloadServiceImpl: DownloadService {
     
     func cancelDownload(downloadID: String) async -> ServiceResult<Int> {
         let target = id2DownloadEntity[downloadID]
-        target!.cancelDownload()
+        do{
+            try target!.cancelDownload()
+        } catch {
+            return ServiceResult(error: AppError.UnknownError(error.localizedDescription))
+        }
+        
         await updateProgress()
         return ServiceResult<Int>(data: _calculateOngoingDownload())
         

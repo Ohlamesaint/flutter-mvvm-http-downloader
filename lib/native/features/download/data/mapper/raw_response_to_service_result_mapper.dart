@@ -1,5 +1,5 @@
-import '../../../../api/app_exception.dart';
-import '../../../../api/service_result.dart';
+import 'package:perfect_corp_homework/native/api/app_exception.dart';
+import 'package:perfect_corp_homework/native/api/service_result.dart';
 
 class RawResponseToServiceResultMapper<T> {
   ServiceResult<T> mapping(Map<String, dynamic> rawResponse,

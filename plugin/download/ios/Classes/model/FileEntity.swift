@@ -12,10 +12,14 @@ class FileEntity {
     let fileType: String
     let temporaryImagePath: String
     
-    init(filenme: String, fileType: String, temporaryImagePath: String) {
-        self.filename = filenme
+    init(filename: String, fileType: String, temporaryImagePath: String) {
+        self.filename = filename
         self.fileType = fileType
         self.temporaryImagePath = temporaryImagePath
+    }
+    
+    func removeTempFile() throws {
+        try FileManager.default.removeItem(at: URL(string: temporaryImagePath)!)
     }
 }
 

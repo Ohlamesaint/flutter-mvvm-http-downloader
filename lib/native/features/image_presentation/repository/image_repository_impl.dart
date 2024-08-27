@@ -71,6 +71,10 @@ class ImageRepositoryImpl implements ImageRepository {
 
       for (File originImage in originImages) {
         String filename = originImage.uri.pathSegments.last.split('.')[0];
+
+        // filter DS_Store file
+        if (filename == "") continue;
+
         ImageModel newImageModel = ImageModel();
         newImageModel.originImage = originImage;
         newImageModel.filename = filename;
@@ -78,9 +82,12 @@ class ImageRepositoryImpl implements ImageRepository {
       }
       for (File thumbnail in thumbnails) {
         String filename = thumbnail.uri.pathSegments.last.split('.')[0];
+
+        // filter DS_Store file
+        if (filename2ImageModel[filename] == null) continue;
+
         filename2ImageModel[filename]!.thumbnail = thumbnail;
       }
-
       await Future.forEach(filename2ImageModel.entries, (entry) async {
         ImageModel imageModel = entry.value;
         String filename = entry.key;

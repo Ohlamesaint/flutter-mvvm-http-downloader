@@ -4,11 +4,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 
-class SequentialDownloadControlEntity(val channel: Channel<Unit>, val downloadScope: CoroutineScope): DownloadControlEntity{
+class SequentialDownloadControlEntity(val syncChannel: Channel<Unit>, val downloadScope: CoroutineScope): DownloadControlEntity{
 
 
     override suspend fun resumeDownload() {
-        channel.send(Unit)
+        syncChannel.send(Unit)
     }
 
     override fun pauseDownload() {
@@ -20,7 +20,7 @@ class SequentialDownloadControlEntity(val channel: Channel<Unit>, val downloadSc
     }
 
     override fun downloadFinished() {
-        channel.close()
+        syncChannel.close()
     }
 
 

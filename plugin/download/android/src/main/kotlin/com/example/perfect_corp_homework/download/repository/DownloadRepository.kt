@@ -5,5 +5,5 @@ import java.util.function.Consumer
 
 interface DownloadRepository {
     suspend fun configureDownload(urlString: String, isConcurrent: Boolean): DownloadEntity
-    suspend fun fetchImageWithUrl(downloadEntity: DownloadEntity, updateProgress: Consumer<Pair<String, Int>>): Unit
+    suspend fun fetchImageWithUrl(downloadEntity: DownloadEntity, updateProgress: (Pair<String, Int>) -> () -> Unit): Unit
 }

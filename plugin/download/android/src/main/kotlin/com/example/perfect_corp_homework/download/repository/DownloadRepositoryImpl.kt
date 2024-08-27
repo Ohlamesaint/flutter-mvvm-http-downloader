@@ -1,20 +1,23 @@
 package com.example.perfect_corp_homework.download.repository
 
 
-import com.example.perfect_corp_homework.download.model.FileEntity
 import android.os.Build
 import android.webkit.MimeTypeMap
 import androidx.annotation.RequiresApi
 import com.example.perfect_corp_homework.download.DownloadPlugin
+import com.example.perfect_corp_homework.download.exception.UnSupportImageTypeError
+import com.example.perfect_corp_homework.download.kSupportMediaTypes
 import com.example.perfect_corp_homework.download.model.ConcurrentDownloadControlEntity
-import com.example.perfect_corp_homework.download.model.SequentialDownloadControlEntity
 import com.example.perfect_corp_homework.download.model.DownloadEntity
 import com.example.perfect_corp_homework.download.model.DownloadStatus
+import com.example.perfect_corp_homework.download.model.FileEntity
+import com.example.perfect_corp_homework.download.model.SequentialDownloadControlEntity
 import com.example.perfect_corp_homework.download.util.FileUtil
 import com.example.perfect_corp_homework.download.util.NetworkUtil
 import io.flutter.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -22,7 +25,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.nio.file.Files
-import java.util.function.Consumer
 import kotlin.io.path.deleteIfExists
 import kotlin.math.min
 
@@ -37,11 +39,15 @@ class DownloadRepositoryImpl() : DownloadRepository {
             val headers = NetworkUtil.getHeaders(urlString)
 
             val contentLengthInfo = headers["Content-Length"]
-            val mimeTypeInfo = headers["Content-Type"]
+            val mimeTypeInfo = headers["Content-Type"] ?: ""
             val acceptRangesInfo = headers["Accept-Ranges"]
 
             val contentLength = contentLengthInfo?.toInt() ?: 0
             val isAcceptRange = acceptRangesInfo == "bytes"
+
+            if(!kSupportMediaTypes.contains(mimeTypeInfo.split("/").last())) {
+                throw UnSupportImageTypeError()
+            }
 
             if(!isAcceptRange) {
                 TODO("Handle Exception")
@@ -74,15 +80,15 @@ class DownloadRepositoryImpl() : DownloadRepository {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    suspend fun sequentialDownload (downloadEntity: DownloadEntity, updateProgress: Consumer<Pair<String, Int>>): Unit {
+    suspend fun sequentialDownload (downloadEntity: DownloadEntity, updateProgress:  (Pair<String, Int>) -> () -> Unit): Unit {
         val totalRequest =  downloadEntity.totalLength / LENGTH_PER_REQUEST +1
 
         val requests = List(totalRequest) { it }
 
         val downloadScope =
             CoroutineScope(Dispatchers.IO)
-        val channel = Channel<Unit>(0);
-        val sequentialDownloadControlEntity = SequentialDownloadControlEntity(channel = channel, downloadScope = downloadScope);
+        val syncChannel = Channel<Unit>(0);
+        val sequentialDownloadControlEntity = SequentialDownloadControlEntity(syncChannel = syncChannel, downloadScope = downloadScope);
         downloadEntity.downloadControlEntity = sequentialDownloadControlEntity
 
 
@@ -90,12 +96,11 @@ class DownloadRepositoryImpl() : DownloadRepository {
             val tempDirectory = Files.createTempDirectory(downloadEntity.fileEntity.filename)
 
             Log.d("DownloadRepositoryImpl", "requests Length: ${requests.size}")
-            val internalChannel = Channel<Int>(0)
 
             requests.map { requestIndex ->
 
                 if(downloadEntity.status == DownloadStatus.paused) {
-                    channel.receive()
+                    syncChannel.receive()
                     Log.d("DownloadRepositoryImpl", "Stopped")
                 }
                 Log.d("DownloadRepositoryImpl", "$requestIndex request started")
@@ -116,25 +121,18 @@ class DownloadRepositoryImpl() : DownloadRepository {
                     end = end,
                     file = tempFileSegment
                 )
-
-                internalChannel.send(length)
+                withContext(Dispatchers.Main) {
+                    updateProgress(Pair(downloadEntity.downloadID, length)).invoke()
+                }
             }
 
-            repeat(totalRequest) { index ->
-                val length = internalChannel.receive()
-                withContext(Dispatchers.Main) {
-                    updateProgress.accept(Pair(downloadEntity.downloadID, length))
-                }
-                if(index==totalRequest-1) {
-                    FileUtil.combineFiles(
-                        tempDirectory.toFile().listFiles()!!.toMutableList().sortedBy { it.name.split('_')[0].toInt()  },
-                        File(downloadEntity.fileEntity.temporaryImagePath)
-                    )
-                    tempDirectory.deleteIfExists()
-                    withContext(Dispatchers.Main) {
-                        DownloadPlugin.finishedEventSink!!.success(DownloadPlugin.gson.toJson(downloadEntity))
-                    }
-                }
+            FileUtil.combineFiles(
+                tempDirectory.toFile().listFiles()!!.toMutableList().sortedBy { it.name.split('_')[0].toInt()  },
+                File(downloadEntity.fileEntity.temporaryImagePath)
+            )
+            tempDirectory.deleteIfExists()
+            withContext(Dispatchers.Main) {
+                DownloadPlugin.finishedEventSink!!.success(DownloadPlugin.gson.toJson(downloadEntity))
             }
         }
 
@@ -143,7 +141,7 @@ class DownloadRepositoryImpl() : DownloadRepository {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private suspend fun concurrentDownload(downloadEntity: DownloadEntity, updateProgress: Consumer<Pair<String, Int>>): Unit {
+    private suspend fun concurrentDownload(downloadEntity: DownloadEntity, updateProgress:  (Pair<String, Int>) -> () -> Unit): Unit {
         val totalRequest =  downloadEntity.totalLength / LENGTH_PER_REQUEST +1
 
         val requests = List(totalRequest) { it }
@@ -153,12 +151,15 @@ class DownloadRepositoryImpl() : DownloadRepository {
         downloadEntity.downloadControlEntity = downloadControlEntity
         Log.d("DownloadRepositoryImpl", "In ConcurrentDownload")
 
+        val tempDirectory = withContext(Dispatchers.IO) {
+            Files.createTempDirectory(downloadEntity.fileEntity.filename)
+        }
+        Log.d("DownloadRepositoryImpl", "requests Length: ${requests.size}")
+        val internalChannel = Channel<Int>(0)
 
         downloadScope.launch {
-            val tempDirectory = Files.createTempDirectory(downloadEntity.fileEntity.filename)
-            Log.d("DownloadRepositoryImpl", "requests Length: ${requests.size}")
 
-            requests.map { requestIndex ->
+            requests.map { requestIndex -> async {
 
                 Log.d("DownloadRepositoryImpl", "$requestIndex request started")
                 val tempFileSegment = File.createTempFile(
@@ -178,17 +179,24 @@ class DownloadRepositoryImpl() : DownloadRepository {
                     end = end,
                     file = tempFileSegment
                 )
+                internalChannel.send(length)
+            }}
+
+            repeat(totalRequest) { index ->
+                val length = internalChannel.receive()
                 withContext(Dispatchers.Main) {
-                    updateProgress.accept(Pair(downloadEntity.downloadID, length))
+                    updateProgress(Pair(downloadEntity.downloadID, length)).invoke()
                 }
-            }
-            withContext(Dispatchers.Main) {
-                FileUtil.combineFiles(
-                    tempDirectory.toFile().listFiles()!!.toMutableList().sortedBy { it.name.split('_')[0].toInt()  },
-                    File(downloadEntity.fileEntity.temporaryImagePath)
-                )
-                tempDirectory.deleteIfExists()
-                DownloadPlugin.finishedEventSink!!.success(DownloadPlugin.gson.toJson(downloadEntity))
+                if(index==totalRequest-1) {
+                    FileUtil.combineFiles(
+                        tempDirectory.toFile().listFiles()!!.toMutableList().sortedBy { it.name.split('_')[0].toInt()  },
+                        File(downloadEntity.fileEntity.temporaryImagePath)
+                    )
+                    tempDirectory.deleteIfExists()
+                    withContext(Dispatchers.Main) {
+                        DownloadPlugin.finishedEventSink!!.success(DownloadPlugin.gson.toJson(downloadEntity))
+                    }
+                }
             }
         }
 
@@ -196,7 +204,7 @@ class DownloadRepositoryImpl() : DownloadRepository {
 
 
     @RequiresApi(Build.VERSION_CODES.O)
-    override suspend fun fetchImageWithUrl(downloadEntity: DownloadEntity, updateProgress: Consumer<Pair<String, Int>>): Unit {
+    override suspend fun fetchImageWithUrl(downloadEntity: DownloadEntity, updateProgress: (Pair<String, Int>) -> () -> Unit): Unit {
 
         if(downloadEntity.isConcurrent) {
             concurrentDownload(downloadEntity = downloadEntity, updateProgress = updateProgress)

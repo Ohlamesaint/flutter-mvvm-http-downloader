@@ -7,8 +7,8 @@ import kotlinx.coroutines.CoroutineScope
 interface DownloadService: CoroutineScope{
     suspend fun createDownload(urlString: String, isConcurrent: Boolean): ServiceResult<Int>
     suspend fun startDownload(downloadEntity: DownloadEntity): Unit
-    suspend fun pauseDownload(downloadID: String): ServiceResult<Int>
-    suspend fun resumeDownload(downloadID: String): ServiceResult<Int>
-    suspend fun cancelDownload(downloadID: String): ServiceResult<Int>
-    suspend fun manualPauseDownload(downloadID: String): ServiceResult<Int>
+     fun pauseDownload(downloadID: String): ServiceResult<Int>
+     suspend fun resumeDownload(downloadID: String): ServiceResult<Int>
+     fun cancelDownload(downloadID: String): ServiceResult<Int>
+     fun manualPauseDownload(downloadID: String): ServiceResult<Int>
 }

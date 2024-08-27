@@ -10,9 +10,11 @@ import Foundation
 class SequentialDownloadControlEntity: DownloadControlEntity {
     
     let queue: OperationQueue
+    let fileSegmentActor: FileSegmentActor
     
-    init(queue: OperationQueue) {
+    init(queue: OperationQueue, fileSegmentActor: FileSegmentActor) {
         self.queue = queue
+        self.fileSegmentActor = fileSegmentActor
     }
     
     func pauseDownload() {
@@ -21,6 +23,9 @@ class SequentialDownloadControlEntity: DownloadControlEntity {
     
     func cancelDownload() {
         queue.cancelAllOperations()
+        Task.detached{
+            await self.fileSegmentActor.removeAllFiles()
+        }
     }
     
     

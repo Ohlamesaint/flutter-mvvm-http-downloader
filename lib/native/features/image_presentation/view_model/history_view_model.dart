@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 
@@ -21,11 +22,20 @@ class HistoryViewModel extends ChangeNotifier {
         .getFinishedEventStream()
         .data!
         .listen((finishedDownloadEntity) async {
-      await locator<ImageRepository>().saveImage(
-        DownloadEntity.fromJson(
-          Map<String, dynamic>.from(finishedDownloadEntity),
-        ),
-      );
+      if (Platform.isAndroid) {
+        await locator<ImageRepository>().saveImage(
+          DownloadEntity.fromJson(
+            Map<String, dynamic>.from(jsonDecode(finishedDownloadEntity)),
+          ),
+        );
+      } else if (Platform.isIOS) {
+        await locator<ImageRepository>().saveImage(
+          DownloadEntity.fromJson(
+            Map<String, dynamic>.from(finishedDownloadEntity),
+          ),
+        );
+      }
+
       await fetchImages();
     });
   }
